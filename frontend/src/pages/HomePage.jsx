@@ -162,7 +162,7 @@ const HomePage = () => {
         link.href = URL.createObjectURL(blob);
         link.click();
         toast.dismiss();
-        toast.success(\"Animated card downloaded successfully!\");
+        toast.success("Animated card downloaded successfully!");
       });
 
       gif.render();
