@@ -115,18 +115,19 @@ const HomePage = () => {
       
       const card = cardRef.current;
       
-      // Wait for any pending renders
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait for background image and animations to settle
+      await new Promise(resolve => setTimeout(resolve, 200));
       
-      // Use html2canvas with settings that preserve the exact appearance
+      // Use html2canvas with optimized settings for background image capture
       const canvas = await html2canvas(card, {
         backgroundColor: null,
         scale: 3,
         useCORS: true,
-        allowTaint: false,
+        allowTaint: true,
         logging: false,
         imageTimeout: 0,
-        removeContainer: true,
+        foreignObjectRendering: false,
+        removeContainer: false,
       });
       
       canvas.toBlob((blob) => {
