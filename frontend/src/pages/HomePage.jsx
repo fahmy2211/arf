@@ -319,8 +319,6 @@ const HomePage = () => {
               <div className="space-y-6">
                 <div className="profile-card-container flex justify-center">
                   <div ref={cardRef} className="profile-card" data-testid="profile-card">
-                    <div className="scan-line"></div>
-                    
                     {/* Umbrella Rain Effect */}
                     <div className="umbrella-rain">
                       <div className="umbrella">☂️</div>
