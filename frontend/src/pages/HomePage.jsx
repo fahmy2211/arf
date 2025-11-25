@@ -123,55 +123,88 @@ const HomePage = () => {
     }
 
     try {
-      toast.loading("Capturing exact card render...");
+      toast.loading("Loading background image...");
       
-      // Wait longer for all effects to render properly
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Preload background image as data URL to avoid CORS issues
+      const bgImageUrl = 'https://customer-assets.emergentagent.com/job_member-id-display/artifacts/mfzkojqc_arcium1.png';
       
-      // Capture with settings that preserve exact 1:1 visual appearance
-      const canvas = await html2canvas(cardElement, {
-        backgroundColor: null, // Preserve transparency
-        scale: 3, // High resolution 3x
-        useCORS: true, // Allow cross-origin images
-        allowTaint: true, // Allow tainted canvas
-        logging: false,
-        imageTimeout: 5000, // Wait for images to load
-        foreignObjectRendering: false,
-        // Capture exact dimensions
-        width: cardElement.offsetWidth,
-        height: cardElement.offsetHeight,
-        windowWidth: cardElement.offsetWidth,
-        windowHeight: cardElement.offsetHeight,
-        x: 0,
-        y: 0,
-        scrollX: 0,
-        scrollY: 0,
-        // Preserve all visual effects
-        ignoreElements: (element) => {
-          // Don't ignore any elements - capture everything
-          return false;
-        },
-      });
+      const loadImageAsDataURL = (url) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+          };
+          img.onerror = reject;
+          img.src = url;
+        });
+      };
       
-      // Convert to high quality PNG blob
-      canvas.toBlob((blob) => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `arcians-${profile.encrypted_id}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+      // Load background as data URL
+      let bgDataUrl;
+      try {
+        bgDataUrl = await loadImageAsDataURL(bgImageUrl);
+        // Temporarily set background as data URL
+        const originalBgImage = cardElement.style.backgroundImage;
+        cardElement.style.backgroundImage = `url(${bgDataUrl})`;
         
         toast.dismiss();
-        toast.success("Card saved successfully! 🎉");
+        toast.loading("Capturing card with background...");
         
-        // Close modal after successful download
-        setTimeout(() => {
-          setShowModal(false);
-        }, 500);
-      }, 'image/png', 1.0);
+        // Wait for render
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Capture with all settings
+        const canvas = await html2canvas(cardElement, {
+          backgroundColor: null,
+          scale: 3,
+          useCORS: true,
+          allowTaint: true,
+          logging: true,
+          imageTimeout: 0,
+          foreignObjectRendering: false,
+          width: cardElement.offsetWidth,
+          height: cardElement.offsetHeight,
+          windowWidth: cardElement.offsetWidth,
+          windowHeight: cardElement.offsetHeight,
+          x: 0,
+          y: 0,
+          scrollX: 0,
+          scrollY: 0,
+        });
+        
+        // Restore original background
+        cardElement.style.backgroundImage = originalBgImage;
+        
+        // Convert to PNG
+        canvas.toBlob((blob) => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `arcians-${profile.encrypted_id}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          
+          toast.dismiss();
+          toast.success("Card saved successfully! 🎉");
+          
+          setTimeout(() => {
+            setShowModal(false);
+          }, 500);
+        }, 'image/png', 1.0);
+        
+      } catch (imgError) {
+        console.error("Background image load error:", imgError);
+        toast.dismiss();
+        toast.error("Failed to load background image");
+      }
       
     } catch (error) {
       console.error("Download error:", error);
