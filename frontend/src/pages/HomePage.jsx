@@ -108,18 +108,21 @@ const HomePage = () => {
   };
 
   const handleDownloadCard = async () => {
-    if (!cardRef.current) return;
+    // Get element by ID card-export
+    const cardElement = document.getElementById('card-export');
+    if (!cardElement) {
+      toast.error("Card element not found");
+      return;
+    }
 
     try {
-      toast.loading("Snapping card...");
-      
-      const card = cardRef.current;
+      toast.loading("Capturing card...");
       
       // Wait for background image and animations to settle
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 300));
       
-      // Use html2canvas with optimized settings for background image capture
-      const canvas = await html2canvas(card, {
+      // Capture ONLY the card-export element (no background page)
+      const canvas = await html2canvas(cardElement, {
         backgroundColor: null,
         scale: 3,
         useCORS: true,
@@ -127,7 +130,12 @@ const HomePage = () => {
         logging: false,
         imageTimeout: 0,
         foreignObjectRendering: false,
-        removeContainer: false,
+        windowWidth: cardElement.offsetWidth,
+        windowHeight: cardElement.offsetHeight,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
       });
       
       canvas.toBlob((blob) => {
@@ -141,13 +149,13 @@ const HomePage = () => {
         URL.revokeObjectURL(url);
         
         toast.dismiss();
-        toast.success("Card snapped successfully! 🎉");
+        toast.success("Card downloaded successfully! 🎉");
       }, 'image/png', 1.0);
       
     } catch (error) {
       console.error("Download error:", error);
       toast.dismiss();
-      toast.error("Failed to snap card");
+      toast.error("Failed to download card");
     }
   };
 
