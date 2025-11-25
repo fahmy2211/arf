@@ -465,8 +465,19 @@ const HomePage = () => {
             className="relative"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Card for download */}
-            <div ref={modalCardRef} id="card-export-modal" className="profile-card" data-testid="modal-card">
+            {/* Card for download - identical to preview */}
+            <div 
+              ref={modalCardRef} 
+              id="card-export-modal" 
+              className="profile-card" 
+              data-testid="modal-card"
+              style={{
+                // Force exact rendering for screenshot
+                transform: 'translateZ(0)',
+                WebkitFontSmoothing: 'antialiased',
+                MozOsxFontSmoothing: 'grayscale',
+              }}
+            >
               {/* Umbrella Rain Effect */}
               <div className="umbrella-rain">
                 <div className="umbrella">☂️</div>
