@@ -103,7 +103,7 @@ body {
 .profile-card {
   position: relative;
   width: 400px;
-  background-image: url('https://customer-assets.emergentagent.com/job_member-id-display/artifacts/3zi729fj_arcium1.png');
+  background-image: url('/uploads/arcium1_bg.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
