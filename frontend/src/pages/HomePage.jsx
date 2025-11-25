@@ -154,7 +154,7 @@ const HomePage = () => {
         quality: 10,
         width: frames[0].width,
         height: frames[0].height,
-        workerScript: '/node_modules/gif.js/dist/gif.worker.js'
+        workerScript: '/gif.worker.js'
       });
       
       // Add all frames
