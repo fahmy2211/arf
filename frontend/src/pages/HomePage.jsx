@@ -114,7 +114,7 @@ const HomePage = () => {
     setShowModal(true);
   };
 
-  const handleShareCard = async () => {
+  const handleSaveCard = async () => {
     // Get element by ID card-export-modal
     const cardElement = document.getElementById('card-export-modal');
     if (!cardElement) {
@@ -123,19 +123,19 @@ const HomePage = () => {
     }
 
     try {
-      toast.loading("Preparing card for sharing...");
+      toast.loading("Capturing card with background...");
       
-      // Wait for background and all effects to render
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Wait longer for background and all effects to fully render
+      await new Promise(resolve => setTimeout(resolve, 800));
       
-      // Capture card as image
+      // Capture card with optimized settings to preserve background
       const canvas = await html2canvas(cardElement, {
-        backgroundColor: null,
-        scale: 3,
-        useCORS: false,
-        allowTaint: false,
+        backgroundColor: '#0a0a0f', // Set background color as fallback
+        scale: 3, // High resolution
+        useCORS: true, // Enable cross-origin
+        allowTaint: true, // Allow tainted canvas
         logging: false,
-        imageTimeout: 0,
+        imageTimeout: 5000, // Wait longer for images
         foreignObjectRendering: false,
         width: cardElement.offsetWidth,
         height: cardElement.offsetHeight,
@@ -145,69 +145,39 @@ const HomePage = () => {
         y: 0,
         scrollX: 0,
         scrollY: 0,
+        onclone: (clonedDoc) => {
+          // Ensure background is visible in cloned document
+          const clonedCard = clonedDoc.getElementById('card-export-modal');
+          if (clonedCard) {
+            // Force background to be visible
+            clonedCard.style.backgroundImage = clonedCard.style.backgroundImage || 'inherit';
+          }
+        }
       });
       
-      // Convert to blob
-      canvas.toBlob(async (blob) => {
-        try {
-          // Try Web Share API first (works on mobile and some desktop browsers)
-          if (navigator.share && navigator.canShare) {
-            const file = new File([blob], `arcians-${profile.encrypted_id}.png`, { type: 'image/png' });
-            
-            if (navigator.canShare({ files: [file] })) {
-              await navigator.share({
-                title: 'My Arcians Profile Card',
-                text: `Check out my Arcians identity card! 🎴✨\n\n#Arcians #CryptoProfile`,
-                files: [file]
-              });
-              
-              toast.dismiss();
-              toast.success("Shared successfully! 🎉");
-              setShowModal(false);
-              return;
-            }
-          }
-          
-          // Fallback: Download image and open Twitter intent
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `arcians-${profile.encrypted_id}.png`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-          
-          // Open Twitter with pre-filled text
-          const tweetText = encodeURIComponent(
-            `Check out my Arcians identity card! 🎴✨\n\n` +
-            `Name: ${profile.name}\n` +
-            `Role: ${profile.role}\n` +
-            `ID: #${profile.encrypted_id}\n\n` +
-            `#Arcians #CryptoProfile #Web3`
-          );
-          
-          const twitterUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
-          window.open(twitterUrl, '_blank', 'width=550,height=420');
-          
-          toast.dismiss();
-          toast.success("Image downloaded! Upload it to your tweet 📸");
-          
-          setTimeout(() => {
-            setShowModal(false);
-          }, 1000);
-          
-        } catch (shareError) {
-          console.error("Share error:", shareError);
-          toast.dismiss();
-          toast.error("Failed to share. Image downloaded instead.");
-        }
+      // Convert to high quality PNG and download
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `arcians-${profile.encrypted_id}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        toast.dismiss();
+        toast.success("Card saved successfully! 🎉");
+        
+        setTimeout(() => {
+          setShowModal(false);
+        }, 500);
       }, 'image/png', 1.0);
       
     } catch (error) {
-      console.error("Share preparation error:", error);
+      console.error("Save card error:", error);
       toast.dismiss();
-      toast.error("Failed to prepare card for sharing");
+      toast.error("Failed to save card");
     }
   };
 
