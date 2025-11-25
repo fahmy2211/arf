@@ -442,15 +442,15 @@ const HomePage = () => {
                   </div>
                 </div>
 
-                {/* Download Button */}
+                {/* Share Button */}
                 <div className="flex justify-center">
                   <Button
-                    data-testid="download-card-btn"
+                    data-testid="share-card-btn-preview"
                     onClick={handleDownloadCard}
                     className="cyber-button"
                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Card
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Share Card
                   </Button>
                 </div>
               </div>
