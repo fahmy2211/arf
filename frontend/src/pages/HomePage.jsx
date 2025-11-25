@@ -114,7 +114,7 @@ const HomePage = () => {
     setShowModal(true);
   };
 
-  const handleActualDownload = async () => {
+  const handleShareCard = async () => {
     // Get element by ID card-export-modal
     const cardElement = document.getElementById('card-export-modal');
     if (!cardElement) {
@@ -123,17 +123,17 @@ const HomePage = () => {
     }
 
     try {
-      toast.loading("Capturing card with all elements...");
+      toast.loading("Preparing card for sharing...");
       
       // Wait for background and all effects to render
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Capture with settings optimized for same-origin images
+      // Capture card as image
       const canvas = await html2canvas(cardElement, {
         backgroundColor: null,
         scale: 3,
-        useCORS: false, // Not needed for same-origin
-        allowTaint: false, // Not needed for same-origin
+        useCORS: false,
+        allowTaint: false,
         logging: false,
         imageTimeout: 0,
         foreignObjectRendering: false,
@@ -147,29 +147,67 @@ const HomePage = () => {
         scrollY: 0,
       });
       
-      // Convert to high quality PNG
-      canvas.toBlob((blob) => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `arcians-${profile.encrypted_id}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        toast.dismiss();
-        toast.success("Card saved successfully! 🎉");
-        
-        setTimeout(() => {
-          setShowModal(false);
-        }, 500);
+      // Convert to blob
+      canvas.toBlob(async (blob) => {
+        try {
+          // Try Web Share API first (works on mobile and some desktop browsers)
+          if (navigator.share && navigator.canShare) {
+            const file = new File([blob], `arcians-${profile.encrypted_id}.png`, { type: 'image/png' });
+            
+            if (navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                title: 'My Arcians Profile Card',
+                text: `Check out my Arcians identity card! 🎴✨\n\n#Arcians #CryptoProfile`,
+                files: [file]
+              });
+              
+              toast.dismiss();
+              toast.success("Shared successfully! 🎉");
+              setShowModal(false);
+              return;
+            }
+          }
+          
+          // Fallback: Download image and open Twitter intent
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `arcians-${profile.encrypted_id}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          
+          // Open Twitter with pre-filled text
+          const tweetText = encodeURIComponent(
+            `Check out my Arcians identity card! 🎴✨\n\n` +
+            `Name: ${profile.name}\n` +
+            `Role: ${profile.role}\n` +
+            `ID: #${profile.encrypted_id}\n\n` +
+            `#Arcians #CryptoProfile #Web3`
+          );
+          
+          const twitterUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
+          window.open(twitterUrl, '_blank', 'width=550,height=420');
+          
+          toast.dismiss();
+          toast.success("Image downloaded! Upload it to your tweet 📸");
+          
+          setTimeout(() => {
+            setShowModal(false);
+          }, 1000);
+          
+        } catch (shareError) {
+          console.error("Share error:", shareError);
+          toast.dismiss();
+          toast.error("Failed to share. Image downloaded instead.");
+        }
       }, 'image/png', 1.0);
       
     } catch (error) {
-      console.error("Download error:", error);
+      console.error("Share preparation error:", error);
       toast.dismiss();
-      toast.error("Failed to save card");
+      toast.error("Failed to prepare card for sharing");
     }
   };
 
