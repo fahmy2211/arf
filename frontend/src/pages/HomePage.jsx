@@ -357,12 +357,12 @@ const HomePage = () => {
           </div>
 
           {/* Preview Section */}
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ background: 'linear-gradient(90deg, #ff00ff, #ff1493)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <div className="space-y-6 flex flex-col items-center">
+            <div className="w-full max-w-[400px]">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-center" style={{ background: 'linear-gradient(90deg, #ff00ff, #ff1493)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 Preview
               </h2>
-              <p className="text-gray-400 text-sm sm:text-base">
+              <p className="text-gray-400 text-sm sm:text-base text-center">
                 Your encrypted identity card
               </p>
             </div>
