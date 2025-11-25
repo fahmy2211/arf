@@ -126,7 +126,7 @@ const HomePage = () => {
     if (!cardRef.current) return;
 
     try {
-      toast.loading("Capturing animated frames...");
+      toast.loading("Preparing animation...");
       
       // Dynamically load GIF.js if not already loaded
       if (!window.GIF) {
@@ -140,56 +140,75 @@ const HomePage = () => {
         });
       }
       
+      const card = cardRef.current;
+      const scanLine = card.querySelector('.scan-line');
+      
+      // Store original styles
+      const originalScanLineStyle = scanLine ? scanLine.style.cssText : '';
+      const originalCardStyle = card.querySelector('.profile-card')?.style.cssText || '';
+      
+      // Disable CSS animations temporarily
+      card.style.animation = 'none';
+      if (scanLine) {
+        scanLine.style.animation = 'none';
+      }
+      
+      toast.dismiss();
+      toast.loading("Capturing frames...");
+      
       const frames = [];
-      const totalFrames = 40; // Increase frames for smoother animation
-      const captureInterval = 100; // Capture every 100ms to catch CSS animations
+      const totalFrames = 50;
       
-      // Find scan line element
-      const scanLine = cardRef.current.querySelector('.scan-line');
-      
-      // Capture frames over time to get actual CSS animation states
+      // Capture frames with manual scan line positioning
       for (let i = 0; i < totalFrames; i++) {
-        // Wait to let CSS animations progress
-        await new Promise(resolve => setTimeout(resolve, captureInterval));
-        
-        // Manually animate scan line if needed (fallback)
+        // Calculate scan line position
         if (scanLine) {
           const progress = (i / totalFrames) * 100;
           scanLine.style.top = `${progress}%`;
+          scanLine.style.opacity = '1';
         }
         
-        // Add slight variations to glow effects
-        const card = cardRef.current.querySelector('.profile-card');
-        if (card && i % 2 === 0) {
-          // Pulse effect
-          const intensity = 0.4 + (Math.sin(i * 0.5) * 0.2);
-          card.style.boxShadow = `
-            0 0 ${20 + i}px rgba(255, 0, 255, ${intensity}),
-            0 0 ${40 + i * 2}px rgba(138, 43, 226, ${intensity * 0.5}),
-            inset 0 0 ${20 + i}px rgba(255, 0, 255, ${intensity * 0.25})
+        // Add glow pulse effect
+        const cardElement = card.querySelector('.profile-card');
+        if (cardElement) {
+          const pulse = 0.4 + (Math.sin((i / totalFrames) * Math.PI * 2) * 0.2);
+          cardElement.style.boxShadow = `
+            0 0 ${20 + pulse * 10}px rgba(255, 0, 255, ${pulse}),
+            0 0 ${40 + pulse * 20}px rgba(138, 43, 226, ${pulse * 0.5}),
+            inset 0 0 ${20 + pulse * 10}px rgba(255, 0, 255, ${pulse * 0.25})
           `;
         }
         
-        const canvas = await html2canvas(cardRef.current, {
+        // Small delay to ensure DOM updates
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // Capture frame
+        const canvas = await html2canvas(card, {
           backgroundColor: '#0a0a0f',
           scale: 2,
           useCORS: true,
           allowTaint: true,
           logging: false,
+          width: 400,
+          height: 600,
         });
         
         frames.push(canvas);
       }
       
-      // Reset scan line position
+      // Restore original styles
       if (scanLine) {
-        scanLine.style.top = '';
+        scanLine.style.cssText = originalScanLineStyle;
+      }
+      const cardElement = card.querySelector('.profile-card');
+      if (cardElement) {
+        cardElement.style.cssText = originalCardStyle;
       }
       
       toast.dismiss();
-      toast.loading("Creating animated GIF...");
+      toast.loading("Creating GIF animation...");
       
-      // Create GIF with worker from public folder
+      // Create GIF
       const gif = new window.GIF({
         workers: 2,
         quality: 10,
@@ -198,12 +217,12 @@ const HomePage = () => {
         workerScript: '/gif.worker.js'
       });
       
-      // Add all captured frames with delay
+      // Add frames
       frames.forEach(canvas => {
-        gif.addFrame(canvas, { delay: 100 }); // 100ms per frame = 10fps
+        gif.addFrame(canvas, { delay: 80 });
       });
       
-      // Handle GIF rendering completion
+      // Handle completion
       gif.on('finished', (blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -215,22 +234,21 @@ const HomePage = () => {
         URL.revokeObjectURL(url);
         
         toast.dismiss();
-        toast.success("Animated GIF downloaded successfully! 🎉");
+        toast.success("Animated GIF downloaded! 🎉");
       });
       
       gif.on('error', (error) => {
-        console.error('GIF generation error:', error);
+        console.error('GIF error:', error);
         toast.dismiss();
-        toast.error("Failed to create animated GIF");
+        toast.error("Failed to create GIF");
       });
       
-      // Start rendering
       gif.render();
       
     } catch (error) {
       console.error("Download error:", error);
       toast.dismiss();
-      toast.error("Failed to download card. Please try again.");
+      toast.error("Failed to download card");
     }
   };
 
