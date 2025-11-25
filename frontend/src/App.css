@@ -103,7 +103,10 @@ body {
 .profile-card {
   position: relative;
   width: 400px;
-  background: linear-gradient(135deg, #1a0033 0%, #0a001a 100%);
+  background-image: url('https://customer-assets.emergentagent.com/job_member-id-display/artifacts/3zi729fj_arcium1.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border: 2px solid #ff00ff;
   border-radius: 16px;
   padding: 40px 32px;
@@ -122,10 +125,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
-    linear-gradient(rgba(255, 0, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 0, 255, 0.02) 1px, transparent 1px);
-  background-size: 20px 20px;
+  background: rgba(0, 0, 0, 0.3);
   pointer-events: none;
 }
 
