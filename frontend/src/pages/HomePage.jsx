@@ -237,7 +237,7 @@ const HomePage = () => {
               <h1 className="text-3xl font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif', background: 'linear-gradient(90deg, #ff00ff, #ff1493)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 ARCIANS PROFILE
               </h1>
-              <p className="text-purple-400 text-sm mt-1">Encrypted Identity Generator</p>
+              <p className="text-purple-400 text-sm mt-1">Encrypted Identity Generator by FamNode</p>
             </div>
           </div>
           <Button
