@@ -111,77 +111,30 @@ const HomePage = () => {
     if (!cardRef.current) return;
 
     try {
-      toast.loading("Preparing animation...");
+      toast.loading("Capturing card...");
       
-      if (!window.GIF) {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js';
-        document.head.appendChild(script);
-        
-        await new Promise((resolve, reject) => {
-          script.onload = resolve;
-          script.onerror = () => reject(new Error('Failed to load GIF.js'));
-        });
-      }
-      
-      const card = cardRef.current;
-      
-      toast.dismiss();
-      toast.loading("Capturing animated frames...");
-      
-      const frames = [];
-      const totalFrames = 50;
-      
-      for (let i = 0; i < totalFrames; i++) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        
-        const canvas = await html2canvas(card, {
-          backgroundColor: '#000000',
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-        });
-        
-        frames.push(canvas);
-      }
-      
-      toast.dismiss();
-      toast.loading("Creating animated GIF...");
-      
-      const gif = new window.GIF({
-        workers: 2,
-        quality: 10,
-        width: frames[0].width,
-        height: frames[0].height,
-        workerScript: '/gif.worker.js'
+      // Capture high-quality PNG
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: '#0a0a0f',
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
       });
       
-      frames.forEach(canvas => {
-        gif.addFrame(canvas, { delay: 80 });
-      });
-      
-      gif.on('finished', (blob) => {
+      canvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `arcians-${profile.encrypted_id}.gif`;
+        link.download = `arcians-${profile.encrypted_id}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         
         toast.dismiss();
-        toast.success("Animated GIF downloaded! 🎉");
-      });
-      
-      gif.on('error', (error) => {
-        console.error('GIF error:', error);
-        toast.dismiss();
-        toast.error("Failed to create GIF");
-      });
-      
-      gif.render();
+        toast.success("Card downloaded successfully! 🎉");
+      }, 'image/png', 1.0);
       
     } catch (error) {
       console.error("Download error:", error);
@@ -332,7 +285,7 @@ const HomePage = () => {
           </div>
 
           <div className="space-y-6 flex flex-col items-center">
-            <div className="w-full max-w-[500px]">
+            <div className="w-full max-w-[400px]">
               <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-center" style={{ background: 'linear-gradient(90deg, #ff00ff, #ff1493)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 Preview
               </h2>
@@ -345,7 +298,7 @@ const HomePage = () => {
               <div className="space-y-6">
                 <div className="profile-card-container flex justify-center">
                   <div ref={cardRef} className="profile-card" data-testid="profile-card">
-                    <div className="lightning-pattern"></div>
+                    <div className="scan-line"></div>
                     
                     {/* Umbrella Rain Effect */}
                     <div className="umbrella-rain">
@@ -359,63 +312,71 @@ const HomePage = () => {
                       <div className="umbrella">☂️</div>
                     </div>
                     
-                    <div className="relative z-10 flex flex-col items-center justify-center space-y-6">
+                    <div className="relative z-10 space-y-6">
                       {/* Profile Photo */}
-                      <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white photo-glow">
-                        <img
-                          src={
-                            photoPreview || 
-                            profile.photo_url ||
-                            "https://images.unsplash.com/photo-1706606999710-72658165a73d?w=400"
-                          }
-                          alt={profile.name}
-                          className="w-full h-full object-cover"
-                          data-testid="profile-photo"
-                          crossOrigin="anonymous"
-                        />
+                      <div className="flex justify-center">
+                        <div className="relative">
+                          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-500 shadow-lg shadow-purple-500/50">
+                            <img
+                              src={
+                                photoPreview || 
+                                profile.photo_url ||
+                                "https://images.unsplash.com/photo-1706606999710-72658165a73d?w=400"
+                              }
+                              alt={profile.name}
+                              className="w-full h-full object-cover"
+                              data-testid="profile-photo"
+                              crossOrigin="anonymous"
+                            />
+                          </div>
+                          <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">✓</span>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Username */}
-                      <div className="bg-black/60 px-6 py-2 rounded-full">
-                        <p className="text-white text-xl font-bold" data-testid="profile-name">
-                          @{profile.name.toLowerCase().replace(/\s+/g, '')}
-                        </p>
-                      </div>
-
-                      {/* Status Level */}
-                      <div className="text-center space-y-2">
-                        <p className="text-pink-400 text-sm font-bold tracking-wider uppercase">
-                          STRENGTH LEVEL:
-                        </p>
-                        <p className="text-white text-3xl font-bold" data-testid="profile-role" style={{ textShadow: '0 0 10px rgba(255, 0, 255, 0.8)' }}>
-                          {profile.role}
-                        </p>
-                        {profile.bio && (
-                          <p className="text-pink-300 text-xl font-bold" data-testid="profile-bio">
-                            {profile.bio}
+                      {/* Profile Info */}
+                      <div className="text-center space-y-3">
+                        <div>
+                          <h3 className="text-2xl font-bold text-white mb-1" data-testid="profile-name">
+                            {profile.name}
+                          </h3>
+                          <p className="text-purple-400 font-medium" data-testid="profile-role">
+                            {profile.role}
                           </p>
+                        </div>
+
+                        {/* Encrypted ID */}
+                        <div className="py-3 px-4 bg-black/40 rounded-lg border border-purple-500/30">
+                          <p className="text-xs text-gray-400 mb-1">ENCRYPTED ID</p>
+                          <p className="encrypted-id text-lg" data-testid="profile-encrypted-id">
+                            #{profile.encrypted_id}
+                          </p>
+                        </div>
+
+                        {/* Bio */}
+                        {profile.bio && (
+                          <div className="text-left py-3 px-4 bg-black/20 rounded-lg border border-purple-500/10">
+                            <p className="text-xs text-gray-400 mb-2">BIO</p>
+                            <p className="text-sm text-gray-300 leading-relaxed" data-testid="profile-bio">
+                              {profile.bio}
+                            </p>
+                          </div>
                         )}
-                      </div>
 
-                      {/* Logo and ID */}
-                      <div className="absolute bottom-8 right-8 text-right space-y-2">
-                        <img 
-                          src="https://customer-assets.emergentagent.com/job_member-id-display/artifacts/ukpdflpi_aYqMoBKH_400x400.jpg" 
-                          alt="Arcians" 
-                          className="w-16 h-16 ml-auto object-contain"
-                        />
-                        <p className="text-purple-300 text-xs">The Arcians Identity</p>
-                      </div>
-
-                      <div className="absolute bottom-8 left-8">
-                        <p className="encrypted-id" data-testid="profile-encrypted-id">
-                          #{profile.encrypted_id}
-                        </p>
+                        {/* Timestamp */}
+                        <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                          <span>GENERATED</span>
+                          <span className="text-purple-400">
+                            {new Date(profile.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
+                {/* Download Button */}
                 <div className="flex justify-center">
                   <Button
                     data-testid="download-card-btn"
@@ -423,26 +384,30 @@ const HomePage = () => {
                     className="cyber-button"
                   >
                     <Download className="w-4 h-4 mr-2" />
-                    Download Animated GIF
+                    Download Card
                   </Button>
                 </div>
               </div>
             ) : (
               <div className="profile-card-container flex justify-center">
                 <div className="profile-card opacity-50">
-                  <div className="lightning-pattern"></div>
-                  <div className="relative z-10 flex flex-col items-center justify-center space-y-6">
-                    <div className="w-40 h-40 rounded-full bg-gray-800 border-4 border-white flex items-center justify-center">
-                      <ImageIcon className="w-16 h-16 text-gray-600" />
+                  <div className="relative z-10 space-y-6">
+                    <div className="flex justify-center">
+                      <div className="w-32 h-32 rounded-full bg-gray-800 border-4 border-purple-500/30 flex items-center justify-center">
+                        <ImageIcon className="w-12 h-12 text-gray-600" />
+                      </div>
                     </div>
-                    <div className="bg-black/60 px-6 py-2 rounded-full">
-                      <p className="text-gray-600 text-xl font-bold">@username</p>
+                    <div className="text-center space-y-3">
+                      <div>
+                        <div className="h-8 bg-gray-800 rounded w-3/4 mx-auto mb-2"></div>
+                        <div className="h-5 bg-gray-800 rounded w-1/2 mx-auto"></div>
+                      </div>
+                      <div className="py-3 px-4 bg-black/40 rounded-lg border border-purple-500/30">
+                        <p className="text-xs text-gray-600 mb-1">ENCRYPTED ID</p>
+                        <p className="text-gray-700 text-lg font-mono">#XXXXXXXXXXXX</p>
+                      </div>
+                      <p className="text-gray-600 text-sm">Generate a profile to preview</p>
                     </div>
-                    <div className="text-center space-y-2">
-                      <p className="text-gray-600 text-sm font-bold tracking-wider">STRENGTH LEVEL:</p>
-                      <p className="text-gray-700 text-3xl font-bold">UNKNOWN</p>
-                    </div>
-                    <p className="text-gray-600 text-sm">Generate a profile to preview</p>
                   </div>
                 </div>
               </div>
