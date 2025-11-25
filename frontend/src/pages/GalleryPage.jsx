@@ -39,12 +39,12 @@ const GalleryPage = () => {
       </div>
 
       {/* Header */}
-      <header className="relative z-10 py-8 px-6 border-b border-cyan-500/20">
+      <header className="relative z-10 py-8 px-6 border-b border-purple-500/20">
         <div className="max-w-7xl mx-auto">
           <Button
             data-testid="back-home-btn"
             onClick={() => navigate("/")}
-            className="bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 mb-6"
+            className="bg-transparent border-2 border-purple-500 text-purple-400 hover:bg-purple-500/10 mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Generator
@@ -56,10 +56,10 @@ const GalleryPage = () => {
               className="w-12 h-12 object-contain"
             />
             <div>
-              <h1 className="text-3xl font-bold glow-text" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              <h1 className="text-3xl font-bold" style={{ fontFamily: 'Space Grotesk, sans-serif', background: 'linear-gradient(90deg, #ff00ff, #ff1493)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 ARCIANS PROFILE GALLERY
               </h1>
-              <p className="text-cyan-400 text-sm mt-1">
+              <p className="text-purple-400 text-sm mt-1">
                 All Generated Encrypted Identities
               </p>
             </div>
