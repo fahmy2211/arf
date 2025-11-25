@@ -109,9 +109,14 @@ const HomePage = () => {
     }
   };
 
-  const handleDownloadCard = async () => {
-    // Get element by ID card-export
-    const cardElement = document.getElementById('card-export');
+  const handleDownloadCard = () => {
+    // Show modal with card preview
+    setShowModal(true);
+  };
+
+  const handleActualDownload = async () => {
+    // Get element by ID card-export-modal
+    const cardElement = document.getElementById('card-export-modal');
     if (!cardElement) {
       toast.error("Card element not found");
       return;
@@ -152,6 +157,7 @@ const HomePage = () => {
         
         toast.dismiss();
         toast.success("Card downloaded successfully! 🎉");
+        setShowModal(false);
       }, 'image/png', 1.0);
       
     } catch (error) {
