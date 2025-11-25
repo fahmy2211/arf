@@ -170,7 +170,7 @@ const HomePage = () => {
                 Generate Your Profile
               </h2>
               <p className="text-gray-400 text-sm sm:text-base">
-                Create an encrypted identity card with cyber aesthetics
+                Create an encrypted identity card with Arcians
               </p>
             </div>
 
