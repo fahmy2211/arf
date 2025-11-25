@@ -103,7 +103,6 @@ body {
 .profile-card {
   position: relative;
   width: 400px;
-  background-image: url('/uploads/arcium1_bg.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -116,6 +115,19 @@ body {
     inset 0 0 20px rgba(255, 0, 255, 0.1);
   overflow: hidden;
   transition: transform 0.3s;
+}
+
+.profile-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('https://customer-assets.emergentagent.com/job_member-id-display/artifacts/mfzkojqc_arcium1.png');
+  background-size: cover;
+  background-position: center;
+  z-index: -2;
 }
 
 .profile-card::before {
