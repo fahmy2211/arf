@@ -126,13 +126,25 @@ const HomePage = () => {
     if (!cardRef.current) return;
 
     try {
-      toast.loading("Generating animated card...");
+      toast.loading("Capturing animated frames...");
       
-      const frames = [];
+      // Load GIF.js dynamically
+      if (!window.GIF) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js';
+        document.head.appendChild(script);
+        
+        await new Promise((resolve, reject) => {
+          script.onload = resolve;
+          script.onerror = reject;
+        });
+      }
+      
       const totalFrames = 20;
       const frameDelay = 100;
+      const frames = [];
       
-      // Capture multiple frames
+      // Capture frames
       for (let i = 0; i < totalFrames; i++) {
         await new Promise(resolve => setTimeout(resolve, frameDelay));
         
@@ -147,21 +159,23 @@ const HomePage = () => {
         frames.push(canvas);
       }
       
-      // Create GIF using gif.js
-      const gif = new GIF({
+      toast.dismiss();
+      toast.loading("Creating GIF animation...");
+      
+      // Create GIF
+      const gif = new window.GIF({
         workers: 2,
         quality: 10,
         width: frames[0].width,
         height: frames[0].height,
-        workerScript: '/gif.worker.js'
+        workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
       });
       
-      // Add all frames
+      // Add frames
       frames.forEach(canvas => {
         gif.addFrame(canvas, { delay: frameDelay });
       });
       
-      // Handle finish
       gif.on('finished', (blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -173,11 +187,11 @@ const HomePage = () => {
         URL.revokeObjectURL(url);
         
         toast.dismiss();
-        toast.success("Animated GIF downloaded!");
+        toast.success("Animated GIF downloaded successfully!");
       });
       
       gif.on('error', (error) => {
-        console.error('GIF generation error:', error);
+        console.error('GIF error:', error);
         toast.dismiss();
         toast.error("Failed to create GIF");
       });
@@ -187,7 +201,7 @@ const HomePage = () => {
     } catch (error) {
       console.error("Download error:", error);
       toast.dismiss();
-      toast.error("Failed to download card");
+      toast.error("Failed to download card. Please try again.");
     }
   };
 
