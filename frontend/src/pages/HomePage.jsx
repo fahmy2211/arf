@@ -1,0 +1,399 @@
+import { useState, useRef } from "react";
+import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Upload, Download, Image as ImageIcon, Sparkles } from "lucide-react";
+import html2canvas from "html2canvas";
+import { useNavigate } from "react-router-dom";
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
+const HomePage = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: "",
+    bio: "",
+    role: "",
+  });
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [generating, setGenerating] = useState(false);
+  const cardRef = useRef(null);
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size must be less than 5MB");
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await axios.post(`${API}/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      setPhotoUrl(`${BACKEND_URL}${response.data.url}`);
+      toast.success("Photo uploaded successfully!");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Failed to upload photo");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleGenerateProfile = async () => {
+    // Validation
+    if (!formData.name.trim()) {
+      toast.error("Please enter your name");
+      return;
+    }
+    if (!formData.role.trim()) {
+      toast.error("Please enter your role");
+      return;
+    }
+
+    setGenerating(true);
+    try {
+      const profileData = {
+        ...formData,
+        photo_url: photoUrl || null,
+      };
+
+      const response = await axios.post(`${API}/profiles`, profileData);
+      setProfile(response.data);
+      toast.success("Profile generated successfully!");
+    } catch (error) {
+      console.error("Generate error:", error);
+      toast.error("Failed to generate profile");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleDownloadCard = async () => {
+    if (!cardRef.current) return;
+
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: null,
+        scale: 2,
+      });
+
+      const link = document.createElement("a");
+      link.download = `profile-${profile.encrypted_id}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+
+      toast.success("Card downloaded successfully!");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Failed to download card");
+    }
+  };
+
+  const handleReset = () => {
+    setFormData({ name: "", bio: "", role: "" });
+    setPhotoUrl("");
+    setProfile(null);
+  };
+
+  return (
+    <div className="cyber-bg min-h-screen relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
+
+      {/* Header */}
+      <header className="relative z-10 py-8 px-6 border-b border-cyan-500/20">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold glow-text" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              CIPHER PROFILE
+            </h1>
+            <p className="text-cyan-400 text-sm mt-1">Encrypted Identity Generator</p>
+          </div>
+          <Button
+            data-testid="view-gallery-btn"
+            onClick={() => navigate("/gallery")}
+            className="bg-transparent border-2 border-cyan-500 text-cyan-400 hover:bg-cyan-500/10"
+          >
+            <ImageIcon className="w-4 h-4 mr-2" />
+            View Gallery
+          </Button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="relative z-10 max-w-7xl mx-auto px-6 py-12">
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          {/* Form Section */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3 glow-text">
+                Generate Your Profile
+              </h2>
+              <p className="text-gray-400 text-sm sm:text-base">
+                Create an encrypted identity card with cyber aesthetics
+              </p>
+            </div>
+
+            <Card className="bg-gray-900/50 backdrop-blur-md border-2 border-cyan-500/30 p-6 space-y-6">
+              {/* Photo Upload */}
+              <div className="space-y-2">
+                <Label htmlFor="photo" className="text-cyan-400">
+                  Profile Photo
+                </Label>
+                <div className="flex items-center gap-4">
+                  {photoUrl && (
+                    <img
+                      src={photoUrl}
+                      alt="Preview"
+                      className="w-20 h-20 rounded-full object-cover border-2 border-cyan-500"
+                    />
+                  )}
+                  <label className="cursor-pointer">
+                    <input
+                      id="photo"
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                      disabled={uploading}
+                      data-testid="photo-upload-input"
+                    />
+                    <div className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/50 rounded-lg hover:bg-cyan-500/20 transition-colors">
+                      <Upload className="w-4 h-4 text-cyan-400" />
+                      <span className="text-cyan-400 text-sm">
+                        {uploading ? "Uploading..." : "Upload Photo"}
+                      </span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Name Input */}
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-cyan-400">
+                  Name *
+                </Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter your name"
+                  className="bg-gray-800/50 border-cyan-500/30 text-white placeholder:text-gray-500 focus:border-cyan-500"
+                  data-testid="name-input"
+                />
+              </div>
+
+              {/* Role Input */}
+              <div className="space-y-2">
+                <Label htmlFor="role" className="text-cyan-400">
+                  Role *
+                </Label>
+                <Input
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Cyber Security Expert"
+                  className="bg-gray-800/50 border-cyan-500/30 text-white placeholder:text-gray-500 focus:border-cyan-500"
+                  data-testid="role-input"
+                />
+              </div>
+
+              {/* Bio Input */}
+              <div className="space-y-2">
+                <Label htmlFor="bio" className="text-cyan-400">
+                  Bio
+                </Label>
+                <Textarea
+                  id="bio"
+                  name="bio"
+                  value={formData.bio}
+                  onChange={handleInputChange}
+                  placeholder="Tell us about yourself..."
+                  rows={4}
+                  className="bg-gray-800/50 border-cyan-500/30 text-white placeholder:text-gray-500 focus:border-cyan-500 resize-none"
+                  data-testid="bio-input"
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3">
+                <Button
+                  data-testid="generate-profile-btn"
+                  onClick={handleGenerateProfile}
+                  disabled={generating}
+                  className="cyber-button flex-1"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {generating ? "Generating..." : "Generate Profile"}
+                </Button>
+                {profile && (
+                  <Button
+                    data-testid="reset-btn"
+                    onClick={handleReset}
+                    variant="outline"
+                    className="bg-transparent border-2 border-gray-500 text-gray-400 hover:bg-gray-500/10"
+                  >
+                    Reset
+                  </Button>
+                )}
+              </div>
+            </Card>
+          </div>
+
+          {/* Preview Section */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3 glow-text">
+                Preview
+              </h2>
+              <p className="text-gray-400 text-sm sm:text-base">
+                Your encrypted identity card
+              </p>
+            </div>
+
+            {profile ? (
+              <div className="space-y-6">
+                <div className="profile-card-container flex justify-center">
+                  <div ref={cardRef} className="profile-card" data-testid="profile-card">
+                    <div className="scan-line"></div>
+                    <div className="relative z-10 space-y-6">
+                      {/* Profile Photo */}
+                      <div className="flex justify-center">
+                        <div className="relative">
+                          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-cyan-500 shadow-lg shadow-cyan-500/50">
+                            <img
+                              src={
+                                profile.photo_url ||
+                                "https://images.unsplash.com/photo-1706606999710-72658165a73d?w=400"
+                              }
+                              alt={profile.name}
+                              className="w-full h-full object-cover"
+                              data-testid="profile-photo"
+                            />
+                          </div>
+                          <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">✓</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Profile Info */}
+                      <div className="text-center space-y-3">
+                        <div>
+                          <h3 className="text-2xl font-bold text-white mb-1" data-testid="profile-name">
+                            {profile.name}
+                          </h3>
+                          <p className="text-cyan-400 font-medium" data-testid="profile-role">
+                            {profile.role}
+                          </p>
+                        </div>
+
+                        {/* Encrypted ID */}
+                        <div className="py-3 px-4 bg-black/40 rounded-lg border border-cyan-500/30">
+                          <p className="text-xs text-gray-400 mb-1">ENCRYPTED ID</p>
+                          <p className="encrypted-id text-lg" data-testid="profile-encrypted-id">
+                            #{profile.encrypted_id}
+                          </p>
+                        </div>
+
+                        {/* Bio */}
+                        {profile.bio && (
+                          <div className="text-left py-3 px-4 bg-black/20 rounded-lg border border-cyan-500/10">
+                            <p className="text-xs text-gray-400 mb-2">BIO</p>
+                            <p className="text-sm text-gray-300 leading-relaxed" data-testid="profile-bio">
+                              {profile.bio}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Timestamp */}
+                        <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                          <span>GENERATED</span>
+                          <span className="text-cyan-400">
+                            {new Date(profile.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Download Button */}
+                <div className="flex justify-center">
+                  <Button
+                    data-testid="download-card-btn"
+                    onClick={handleDownloadCard}
+                    className="cyber-button"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Card
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="profile-card-container flex justify-center">
+                <div className="profile-card opacity-50">
+                  <div className="relative z-10 space-y-6">
+                    <div className="flex justify-center">
+                      <div className="w-32 h-32 rounded-full bg-gray-800 border-4 border-cyan-500/30 flex items-center justify-center">
+                        <ImageIcon className="w-12 h-12 text-gray-600" />
+                      </div>
+                    </div>
+                    <div className="text-center space-y-3">
+                      <div>
+                        <div className="h-8 bg-gray-800 rounded w-3/4 mx-auto mb-2"></div>
+                        <div className="h-5 bg-gray-800 rounded w-1/2 mx-auto"></div>
+                      </div>
+                      <div className="py-3 px-4 bg-black/40 rounded-lg border border-cyan-500/30">
+                        <p className="text-xs text-gray-600 mb-1">ENCRYPTED ID</p>
+                        <p className="text-gray-700 text-lg font-mono">#XXXXXXXXXXXX</p>
+                      </div>
+                      <p className="text-gray-600 text-sm">Generate a profile to preview</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default HomePage;
