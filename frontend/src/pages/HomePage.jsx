@@ -127,23 +127,49 @@ const HomePage = () => {
     if (!cardRef.current) return;
 
     try {
-      const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: '#0a0a0f',
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
+      toast.loading("Generating animated GIF...");
+      
+      const gif = new GIF({
+        workers: 2,
+        quality: 10,
+        width: 400,
+        height: 600,
+        workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
       });
 
-      const link = document.createElement("a");
-      link.download = `arcians-${profile.encrypted_id}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      // Capture multiple frames for animation
+      const totalFrames = 30;
+      const delay = 100; // ms between frames
+      
+      for (let i = 0; i < totalFrames; i++) {
+        // Wait a bit to capture different animation states
+        await new Promise(resolve => setTimeout(resolve, delay));
+        
+        const canvas = await html2canvas(cardRef.current, {
+          backgroundColor: '#0a0a0f',
+          scale: 1.5,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+        });
 
-      toast.success("Card downloaded successfully!");
+        gif.addFrame(canvas, { delay: delay });
+      }
+
+      gif.on('finished', function(blob) {
+        const link = document.createElement('a');
+        link.download = `arcians-${profile.encrypted_id}.gif`;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        toast.dismiss();
+        toast.success(\"Animated card downloaded successfully!\");
+      });
+
+      gif.render();
     } catch (error) {
-      console.error("Download error:", error);
-      toast.error("Failed to download card");
+      console.error(\"Download error:\", error);
+      toast.dismiss();
+      toast.error(\"Failed to download card\");
     }
   };
 
