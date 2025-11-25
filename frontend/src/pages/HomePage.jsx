@@ -162,13 +162,13 @@ const HomePage = () => {
       toast.dismiss();
       toast.loading("Creating animated GIF...");
       
-      // Create GIF with worker from our backend
+      // Create GIF with worker from public folder
       const gif = new window.GIF({
         workers: 2,
         quality: 10,
         width: frames[0].width,
         height: frames[0].height,
-        workerScript: `${BACKEND_URL}/uploads/gif.worker.js`
+        workerScript: '/gif.worker.js'
       });
       
       // Add all captured frames
