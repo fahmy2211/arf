@@ -111,37 +111,23 @@ const HomePage = () => {
     if (!cardRef.current) return;
 
     try {
-      toast.loading("Preparing card for download...");
+      toast.loading("Snapping card...");
       
       const card = cardRef.current;
       
-      // Store original animation states
-      const umbrellaRain = card.querySelector('.umbrella-rain');
-      const originalUmbrellaDisplay = umbrellaRain ? umbrellaRain.style.display : '';
-      
-      // Temporarily hide animated umbrellas for clean capture
-      if (umbrellaRain) {
-        umbrellaRain.style.display = 'none';
-      }
-      
-      // Wait a bit for DOM to settle
+      // Wait for any pending renders
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Capture high-quality PNG
+      // Use html2canvas with settings that preserve the exact appearance
       const canvas = await html2canvas(card, {
-        backgroundColor: '#0a0a0f',
+        backgroundColor: null,
         scale: 3,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         logging: false,
-        width: 400,
-        height: card.offsetHeight,
+        imageTimeout: 0,
+        removeContainer: true,
       });
-      
-      // Restore umbrellas animation
-      if (umbrellaRain) {
-        umbrellaRain.style.display = originalUmbrellaDisplay;
-      }
       
       canvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
@@ -154,13 +140,13 @@ const HomePage = () => {
         URL.revokeObjectURL(url);
         
         toast.dismiss();
-        toast.success("Card downloaded successfully! 🎉");
+        toast.success("Card snapped successfully! 🎉");
       }, 'image/png', 1.0);
       
     } catch (error) {
       console.error("Download error:", error);
       toast.dismiss();
-      toast.error("Failed to download card");
+      toast.error("Failed to snap card");
     }
   };
 
