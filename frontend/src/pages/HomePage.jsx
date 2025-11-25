@@ -127,13 +127,16 @@ const HomePage = () => {
 
     try {
       const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: null,
+        backgroundColor: '#0a0a0f',
         scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
       });
 
       const link = document.createElement("a");
       link.download = `arcians-${profile.encrypted_id}.png`;
-      link.href = canvas.toDataURL();
+      link.href = canvas.toDataURL('image/png');
       link.click();
 
       toast.success("Card downloaded successfully!");
