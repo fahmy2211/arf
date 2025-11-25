@@ -123,29 +123,37 @@ const HomePage = () => {
     }
 
     try {
-      toast.loading("Taking screenshot...");
+      toast.loading("Capturing exact card render...");
       
-      // Wait for background image and animations to settle
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Wait longer for all effects to render properly
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Screenshot/capture the card element
+      // Capture with settings that preserve exact 1:1 visual appearance
       const canvas = await html2canvas(cardElement, {
-        backgroundColor: null,
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
+        backgroundColor: null, // Preserve transparency
+        scale: 3, // High resolution 3x
+        useCORS: true, // Allow cross-origin images
+        allowTaint: true, // Allow tainted canvas
         logging: false,
-        imageTimeout: 0,
+        imageTimeout: 5000, // Wait for images to load
         foreignObjectRendering: false,
+        // Capture exact dimensions
+        width: cardElement.offsetWidth,
+        height: cardElement.offsetHeight,
         windowWidth: cardElement.offsetWidth,
         windowHeight: cardElement.offsetHeight,
         x: 0,
         y: 0,
         scrollX: 0,
         scrollY: 0,
+        // Preserve all visual effects
+        ignoreElements: (element) => {
+          // Don't ignore any elements - capture everything
+          return false;
+        },
       });
       
-      // Convert to blob and download immediately
+      // Convert to high quality PNG blob
       canvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
