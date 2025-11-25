@@ -141,12 +141,34 @@ const HomePage = () => {
       }
       
       const frames = [];
-      const totalFrames = 30;
-      const frameDelay = 100; // 100ms per frame = 10fps
+      const totalFrames = 40; // Increase frames for smoother animation
+      const captureInterval = 100; // Capture every 100ms to catch CSS animations
       
-      // Capture multiple frames to create animation
+      // Find scan line element
+      const scanLine = cardRef.current.querySelector('.scan-line');
+      
+      // Capture frames over time to get actual CSS animation states
       for (let i = 0; i < totalFrames; i++) {
-        await new Promise(resolve => setTimeout(resolve, frameDelay));
+        // Wait to let CSS animations progress
+        await new Promise(resolve => setTimeout(resolve, captureInterval));
+        
+        // Manually animate scan line if needed (fallback)
+        if (scanLine) {
+          const progress = (i / totalFrames) * 100;
+          scanLine.style.top = `${progress}%`;
+        }
+        
+        // Add slight variations to glow effects
+        const card = cardRef.current.querySelector('.profile-card');
+        if (card && i % 2 === 0) {
+          // Pulse effect
+          const intensity = 0.4 + (Math.sin(i * 0.5) * 0.2);
+          card.style.boxShadow = `
+            0 0 ${20 + i}px rgba(255, 0, 255, ${intensity}),
+            0 0 ${40 + i * 2}px rgba(138, 43, 226, ${intensity * 0.5}),
+            inset 0 0 ${20 + i}px rgba(255, 0, 255, ${intensity * 0.25})
+          `;
+        }
         
         const canvas = await html2canvas(cardRef.current, {
           backgroundColor: '#0a0a0f',
@@ -157,6 +179,11 @@ const HomePage = () => {
         });
         
         frames.push(canvas);
+      }
+      
+      // Reset scan line position
+      if (scanLine) {
+        scanLine.style.top = '';
       }
       
       toast.dismiss();
@@ -171,9 +198,9 @@ const HomePage = () => {
         workerScript: '/gif.worker.js'
       });
       
-      // Add all captured frames
+      // Add all captured frames with delay
       frames.forEach(canvas => {
-        gif.addFrame(canvas, { delay: frameDelay });
+        gif.addFrame(canvas, { delay: 100 }); // 100ms per frame = 10fps
       });
       
       // Handle GIF rendering completion
