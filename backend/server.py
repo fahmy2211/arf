@@ -29,8 +29,15 @@ app = FastAPI()
 UPLOAD_DIR = ROOT_DIR / "uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
 
-# Mount static files
-app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
+# Mount static files with proper media types
+class CustomStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        if path.endswith('.js'):
+            response.headers['content-type'] = 'application/javascript'
+        return response
+
+app.mount("/uploads", CustomStaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
