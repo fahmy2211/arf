@@ -25,7 +25,9 @@ const HomePage = () => {
   const [uploading, setUploading] = useState(false);
   const [profile, setProfile] = useState(null);
   const [generating, setGenerating] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const cardRef = useRef(null);
+  const modalCardRef = useRef(null);
 
   const handleInputChange = (e) => {
     setFormData({
