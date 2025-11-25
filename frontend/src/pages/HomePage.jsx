@@ -111,16 +111,37 @@ const HomePage = () => {
     if (!cardRef.current) return;
 
     try {
-      toast.loading("Capturing card...");
+      toast.loading("Preparing card for download...");
+      
+      const card = cardRef.current;
+      
+      // Store original animation states
+      const umbrellaRain = card.querySelector('.umbrella-rain');
+      const originalUmbrellaDisplay = umbrellaRain ? umbrellaRain.style.display : '';
+      
+      // Temporarily hide animated umbrellas for clean capture
+      if (umbrellaRain) {
+        umbrellaRain.style.display = 'none';
+      }
+      
+      // Wait a bit for DOM to settle
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       // Capture high-quality PNG
-      const canvas = await html2canvas(cardRef.current, {
+      const canvas = await html2canvas(card, {
         backgroundColor: '#0a0a0f',
         scale: 3,
         useCORS: true,
         allowTaint: true,
         logging: false,
+        width: 400,
+        height: card.offsetHeight,
       });
+      
+      // Restore umbrellas animation
+      if (umbrellaRain) {
+        umbrellaRain.style.display = originalUmbrellaDisplay;
+      }
       
       canvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
