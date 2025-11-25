@@ -556,12 +556,12 @@ const HomePage = () => {
             {/* Action Buttons */}
             <div className="mt-6 flex gap-3 justify-center">
               <Button
-                onClick={handleShareCard}
+                onClick={handleSaveCard}
                 className="cyber-button"
-                data-testid="share-card-btn"
+                data-testid="save-card-btn"
               >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Share to X
+                <Download className="w-4 h-4 mr-2" />
+                Save Card
               </Button>
               <Button
                 onClick={() => setShowModal(false)}
