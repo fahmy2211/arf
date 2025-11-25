@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Upload, Download, Image as ImageIcon, Sparkles } from "lucide-react";
 import html2canvas from "html2canvas";
 import { useNavigate } from "react-router-dom";
+import GIF from "gif.js";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
