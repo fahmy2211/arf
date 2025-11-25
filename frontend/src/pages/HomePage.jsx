@@ -167,9 +167,9 @@ const HomePage = () => {
 
       gif.render();
     } catch (error) {
-      console.error(\"Download error:\", error);
+      console.error("Download error:", error);
       toast.dismiss();
-      toast.error(\"Failed to download card\");
+      toast.error("Failed to download card");
     }
   };
 
