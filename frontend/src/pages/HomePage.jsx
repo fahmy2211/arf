@@ -533,14 +533,16 @@ const HomePage = () => {
               <Button
                 onClick={handleActualDownload}
                 className="cyber-button"
+                data-testid="save-card-btn"
               >
                 <Download className="w-4 h-4 mr-2" />
-                Download PNG
+                Save Card
               </Button>
               <Button
                 onClick={() => setShowModal(false)}
                 variant="outline"
                 className="bg-transparent border-2 border-gray-400 text-gray-300 hover:bg-gray-700/20"
+                data-testid="close-modal-btn"
               >
                 Close
               </Button>
