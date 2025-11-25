@@ -437,6 +437,117 @@ const HomePage = () => {
           </div>
         </div>
       </main>
+
+      {/* Download Modal */}
+      {showModal && profile && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ 
+            backdropFilter: 'blur(10px)',
+            backgroundColor: 'rgba(138, 43, 226, 0.3)'
+          }}
+          onClick={() => setShowModal(false)}
+        >
+          <div 
+            className="relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Card for download */}
+            <div ref={modalCardRef} id="card-export-modal" className="profile-card" data-testid="modal-card">
+              {/* Umbrella Rain Effect */}
+              <div className="umbrella-rain">
+                <div className="umbrella">☂️</div>
+                <div className="umbrella">☂️</div>
+                <div className="umbrella">☂️</div>
+                <div className="umbrella">☂️</div>
+                <div className="umbrella">☂️</div>
+                <div className="umbrella">☂️</div>
+                <div className="umbrella">☂️</div>
+                <div className="umbrella">☂️</div>
+              </div>
+              
+              <div className="relative z-10 space-y-6">
+                {/* Profile Photo */}
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-500 shadow-lg shadow-purple-500/50">
+                      <img
+                        src={
+                          photoPreview || 
+                          profile.photo_url ||
+                          "https://images.unsplash.com/photo-1706606999710-72658165a73d?w=400"
+                        }
+                        alt={profile.name}
+                        className="w-full h-full object-cover"
+                        crossOrigin="anonymous"
+                      />
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">✓</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Profile Info */}
+                <div className="text-center space-y-3">
+                  <div>
+                    <h3 className="text-2xl font-bold text-white mb-1">
+                      {profile.name}
+                    </h3>
+                    <p className="text-purple-400 font-medium">
+                      {profile.role}
+                    </p>
+                  </div>
+
+                  {/* Encrypted ID */}
+                  <div className="py-3 px-4 bg-black/40 rounded-lg border border-purple-500/30">
+                    <p className="text-xs text-gray-400 mb-1">ENCRYPTED ID</p>
+                    <p className="encrypted-id text-lg">
+                      #{profile.encrypted_id}
+                    </p>
+                  </div>
+
+                  {/* Bio */}
+                  {profile.bio && (
+                    <div className="text-left py-3 px-4 bg-black/20 rounded-lg border border-purple-500/10">
+                      <p className="text-xs text-gray-400 mb-2">BIO</p>
+                      <p className="text-sm text-gray-300 leading-relaxed">
+                        {profile.bio}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Timestamp */}
+                  <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                    <span>GENERATED</span>
+                    <span className="text-purple-400">
+                      {new Date(profile.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-6 flex gap-3 justify-center">
+              <Button
+                onClick={handleActualDownload}
+                className="cyber-button"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download PNG
+              </Button>
+              <Button
+                onClick={() => setShowModal(false)}
+                variant="outline"
+                className="bg-transparent border-2 border-gray-400 text-gray-300 hover:bg-gray-700/20"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
