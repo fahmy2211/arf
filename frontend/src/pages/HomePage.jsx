@@ -123,88 +123,48 @@ const HomePage = () => {
     }
 
     try {
-      toast.loading("Loading background image...");
+      toast.loading("Capturing card with all elements...");
       
-      // Preload background image as data URL to avoid CORS issues
-      const bgImageUrl = 'https://customer-assets.emergentagent.com/job_member-id-display/artifacts/mfzkojqc_arcium1.png';
+      // Wait for background and all effects to render
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      const loadImageAsDataURL = (url) => {
-        return new Promise((resolve, reject) => {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            resolve(canvas.toDataURL('image/png'));
-          };
-          img.onerror = reject;
-          img.src = url;
-        });
-      };
+      // Capture with settings optimized for same-origin images
+      const canvas = await html2canvas(cardElement, {
+        backgroundColor: null,
+        scale: 3,
+        useCORS: false, // Not needed for same-origin
+        allowTaint: false, // Not needed for same-origin
+        logging: false,
+        imageTimeout: 0,
+        foreignObjectRendering: false,
+        width: cardElement.offsetWidth,
+        height: cardElement.offsetHeight,
+        windowWidth: cardElement.offsetWidth,
+        windowHeight: cardElement.offsetHeight,
+        x: 0,
+        y: 0,
+        scrollX: 0,
+        scrollY: 0,
+      });
       
-      // Load background as data URL
-      let bgDataUrl;
-      try {
-        bgDataUrl = await loadImageAsDataURL(bgImageUrl);
-        // Temporarily set background as data URL
-        const originalBgImage = cardElement.style.backgroundImage;
-        cardElement.style.backgroundImage = `url(${bgDataUrl})`;
+      // Convert to high quality PNG
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `arcians-${profile.encrypted_id}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
         
         toast.dismiss();
-        toast.loading("Capturing card with background...");
+        toast.success("Card saved successfully! 🎉");
         
-        // Wait for render
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Capture with all settings
-        const canvas = await html2canvas(cardElement, {
-          backgroundColor: null,
-          scale: 3,
-          useCORS: true,
-          allowTaint: true,
-          logging: true,
-          imageTimeout: 0,
-          foreignObjectRendering: false,
-          width: cardElement.offsetWidth,
-          height: cardElement.offsetHeight,
-          windowWidth: cardElement.offsetWidth,
-          windowHeight: cardElement.offsetHeight,
-          x: 0,
-          y: 0,
-          scrollX: 0,
-          scrollY: 0,
-        });
-        
-        // Restore original background
-        cardElement.style.backgroundImage = originalBgImage;
-        
-        // Convert to PNG
-        canvas.toBlob((blob) => {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `arcians-${profile.encrypted_id}.png`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-          
-          toast.dismiss();
-          toast.success("Card saved successfully! 🎉");
-          
-          setTimeout(() => {
-            setShowModal(false);
-          }, 500);
-        }, 'image/png', 1.0);
-        
-      } catch (imgError) {
-        console.error("Background image load error:", imgError);
-        toast.dismiss();
-        toast.error("Failed to load background image");
-      }
+        setTimeout(() => {
+          setShowModal(false);
+        }, 500);
+      }, 'image/png', 1.0);
       
     } catch (error) {
       console.error("Download error:", error);
