@@ -49,13 +49,20 @@ const GalleryPage = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Generator
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold glow-text" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              PROFILE GALLERY
-            </h1>
-            <p className="text-cyan-400 text-sm mt-1">
-              All Generated Encrypted Identities
-            </p>
+          <div className="flex items-center gap-4">
+            <img 
+              src="https://customer-assets.emergentagent.com/job_member-id-display/artifacts/ukpdflpi_aYqMoBKH_400x400.jpg" 
+              alt="Arcians Logo" 
+              className="w-12 h-12 object-contain"
+            />
+            <div>
+              <h1 className="text-3xl font-bold glow-text" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                ARCIANS PROFILE GALLERY
+              </h1>
+              <p className="text-cyan-400 text-sm mt-1">
+                All Generated Encrypted Identities
+              </p>
+            </div>
           </div>
         </div>
       </header>
