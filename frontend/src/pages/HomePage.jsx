@@ -126,82 +126,36 @@ const HomePage = () => {
     if (!cardRef.current) return;
 
     try {
-      toast.loading("Capturing animated frames...");
+      toast.loading("Preparing download...");
       
-      // Load GIF.js dynamically
-      if (!window.GIF) {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js';
-        document.head.appendChild(script);
-        
-        await new Promise((resolve, reject) => {
-          script.onload = resolve;
-          script.onerror = reject;
-        });
-      }
-      
-      const totalFrames = 20;
-      const frameDelay = 100;
-      const frames = [];
-      
-      // Capture frames
-      for (let i = 0; i < totalFrames; i++) {
-        await new Promise(resolve => setTimeout(resolve, frameDelay));
-        
-        const canvas = await html2canvas(cardRef.current, {
-          backgroundColor: '#0a0a0f',
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          logging: false,
-        });
-        
-        frames.push(canvas);
-      }
-      
-      toast.dismiss();
-      toast.loading("Creating GIF animation...");
-      
-      // Create GIF
-      const gif = new window.GIF({
-        workers: 2,
-        quality: 10,
-        width: frames[0].width,
-        height: frames[0].height,
-        workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
+      // Capture single high-quality frame
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: '#0a0a0f',
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
       });
       
-      // Add frames
-      frames.forEach(canvas => {
-        gif.addFrame(canvas, { delay: frameDelay });
-      });
-      
-      gif.on('finished', (blob) => {
+      // Convert to blob
+      canvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `arcians-${profile.encrypted_id}.gif`;
+        link.download = `arcians-${profile.encrypted_id}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         
         toast.dismiss();
-        toast.success("Animated GIF downloaded successfully!");
-      });
-      
-      gif.on('error', (error) => {
-        console.error('GIF error:', error);
-        toast.dismiss();
-        toast.error("Failed to create GIF");
-      });
-      
-      gif.render();
+        toast.success("Card downloaded successfully!");
+      }, 'image/png', 1.0);
       
     } catch (error) {
       console.error("Download error:", error);
       toast.dismiss();
-      toast.error("Failed to download card. Please try again.");
+      toast.error("Failed to download card");
     }
   };
 
