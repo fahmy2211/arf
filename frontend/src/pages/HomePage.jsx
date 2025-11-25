@@ -127,45 +127,64 @@ const HomePage = () => {
     if (!cardRef.current) return;
 
     try {
-      toast.loading("Generating animated GIF...");
+      toast.loading("Generating animated card...");
       
-      const gif = new GIF({
-        workers: 2,
-        quality: 10,
-        width: 400,
-        height: 600,
-        workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
-      });
-
-      // Capture multiple frames for animation
-      const totalFrames = 30;
-      const delay = 100; // ms between frames
+      const frames = [];
+      const totalFrames = 20;
+      const frameDelay = 100;
       
+      // Capture multiple frames
       for (let i = 0; i < totalFrames; i++) {
-        // Wait a bit to capture different animation states
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise(resolve => setTimeout(resolve, frameDelay));
         
         const canvas = await html2canvas(cardRef.current, {
           backgroundColor: '#0a0a0f',
-          scale: 1.5,
+          scale: 2,
           useCORS: true,
           allowTaint: true,
           logging: false,
         });
-
-        gif.addFrame(canvas, { delay: delay });
+        
+        frames.push(canvas);
       }
-
-      gif.on('finished', function(blob) {
-        const link = document.createElement('a');
-        link.download = `arcians-${profile.encrypted_id}.gif`;
-        link.href = URL.createObjectURL(blob);
-        link.click();
-        toast.dismiss();
-        toast.success("Animated card downloaded successfully!");
+      
+      // Create GIF using gif.js
+      const gif = new GIF({
+        workers: 2,
+        quality: 10,
+        width: frames[0].width,
+        height: frames[0].height,
+        workerScript: '/node_modules/gif.js/dist/gif.worker.js'
       });
-
+      
+      // Add all frames
+      frames.forEach(canvas => {
+        gif.addFrame(canvas, { delay: frameDelay });
+      });
+      
+      // Handle finish
+      gif.on('finished', (blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `arcians-${profile.encrypted_id}.gif`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        toast.dismiss();
+        toast.success("Animated GIF downloaded!");
+      });
+      
+      gif.on('error', (error) => {
+        console.error('GIF generation error:', error);
+        toast.dismiss();
+        toast.error("Failed to create GIF");
+      });
+      
       gif.render();
+      
     } catch (error) {
       console.error("Download error:", error);
       toast.dismiss();
