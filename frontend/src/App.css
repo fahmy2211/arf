@@ -56,20 +56,6 @@ body {
   pointer-events: none;
 }
 
-/* Glowing Text Effect */
-.glow-text {
-  text-shadow: 0 0 10px rgba(255, 0, 255, 0.5),
-               0 0 20px rgba(255, 0, 255, 0.3),
-               0 0 30px rgba(255, 0, 255, 0.2);
-}
-
-/* Neon Border */
-.neon-border {
-  border: 2px solid #ff00ff;
-  box-shadow: 0 0 10px rgba(255, 0, 255, 0.5),
-              inset 0 0 10px rgba(255, 0, 255, 0.2);
-}
-
 /* Cyber Button */
 .cyber-button {
   position: relative;
@@ -109,47 +95,119 @@ body {
   transform: translateY(0);
 }
 
-/* Profile Card Styles */
+/* Circular Profile Card - Monad Style */
 .profile-card-container {
   perspective: 1000px;
+  position: relative;
 }
 
 .profile-card {
   position: relative;
-  width: 400px;
-  background: linear-gradient(135deg, #1a0033 0%, #0a001a 100%);
-  border: 2px solid #ff00ff;
-  border-radius: 16px;
-  padding: 40px 32px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(ellipse at center, #1a0033 0%, #000000 70%);
+  border-radius: 50%;
+  padding: 40px;
   box-shadow: 
-    0 0 20px rgba(255, 0, 255, 0.4),
-    0 0 40px rgba(138, 43, 226, 0.2),
-    inset 0 0 20px rgba(255, 0, 255, 0.1);
-  overflow: hidden;
+    0 0 60px rgba(255, 0, 255, 0.6),
+    0 0 100px rgba(138, 43, 226, 0.4),
+    inset 0 0 80px rgba(255, 0, 255, 0.2);
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.3s;
 }
 
 .profile-card::before {
   content: '';
   position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: linear-gradient(45deg, #ff00ff, #8a2be2, #ff1493, #ff00ff);
+  border-radius: 50%;
+  z-index: -1;
+  filter: blur(30px);
+  opacity: 0.6;
+  animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.profile-card:hover {
+  transform: translateY(-5px) scale(1.02);
+}
+
+/* Lightning Pattern Background */
+.lightning-pattern {
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   background-image: 
-    linear-gradient(rgba(255, 0, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 0, 255, 0.02) 1px, transparent 1px);
-  background-size: 20px 20px;
+    linear-gradient(45deg, transparent 45%, rgba(255, 255, 255, 0.05) 48%, rgba(255, 255, 255, 0.05) 52%, transparent 55%),
+    linear-gradient(-45deg, transparent 45%, rgba(255, 255, 255, 0.05) 48%, rgba(255, 255, 255, 0.05) 52%, transparent 55%);
+  background-size: 80px 80px;
+  border-radius: 50%;
   pointer-events: none;
+  opacity: 0.3;
 }
 
-.profile-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 
-    0 0 30px rgba(255, 0, 255, 0.6),
-    0 0 60px rgba(138, 43, 226, 0.3),
-    inset 0 0 30px rgba(255, 0, 255, 0.15);
+/* Umbrella Rain Animation */
+.umbrella-rain {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 50%;
 }
+
+.umbrella {
+  position: absolute;
+  font-size: 24px;
+  opacity: 0.7;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  0% {
+    top: -10%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0.7;
+  }
+  100% {
+    top: 110%;
+    opacity: 0;
+  }
+}
+
+.umbrella:nth-child(1) { left: 10%; animation-duration: 3s; animation-delay: 0s; }
+.umbrella:nth-child(2) { left: 25%; animation-duration: 4s; animation-delay: 0.5s; }
+.umbrella:nth-child(3) { left: 40%; animation-duration: 3.5s; animation-delay: 1s; }
+.umbrella:nth-child(4) { left: 55%; animation-duration: 4.5s; animation-delay: 0.3s; }
+.umbrella:nth-child(5) { left: 70%; animation-duration: 3.8s; animation-delay: 0.8s; }
+.umbrella:nth-child(6) { left: 85%; animation-duration: 4.2s; animation-delay: 0.2s; }
+.umbrella:nth-child(7) { left: 15%; animation-duration: 3.3s; animation-delay: 1.5s; }
+.umbrella:nth-child(8) { left: 60%; animation-duration: 3.9s; animation-delay: 1.2s; }
 
 /* Encrypted ID Style */
 .encrypted-id {
@@ -158,53 +216,23 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: 600;
-  letter-spacing: 2px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  font-size: 14px;
 }
 
-/* Loading Animation */
-@keyframes pulse {
+/* Glow Animation for Photo */
+@keyframes photoGlow {
   0%, 100% {
-    opacity: 1;
+    box-shadow: 0 0 20px rgba(255, 0, 255, 0.6),
+                0 0 40px rgba(138, 43, 226, 0.4);
   }
   50% {
-    opacity: 0.5;
+    box-shadow: 0 0 40px rgba(255, 0, 255, 0.8),
+                0 0 60px rgba(138, 43, 226, 0.6);
   }
 }
 
-.loading {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Floating Animation */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.float-animation {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Scan Line Effect */
-@keyframes scan {
-  0% {
-    top: 0;
-  }
-  100% {
-    top: 100%;
-  }
-}
-
-.scan-line {
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #ff00ff, transparent);
-  animation: scan 4s linear infinite;
-  pointer-events: none;
+.photo-glow {
+  animation: photoGlow 2s ease-in-out infinite;
 }

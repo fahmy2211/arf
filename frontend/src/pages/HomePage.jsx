@@ -38,19 +38,16 @@ const HomePage = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       toast.error("Please upload an image file");
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Image size must be less than 5MB");
       return;
     }
 
-    // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setPhotoPreview(reader.result);
@@ -62,7 +59,6 @@ const HomePage = () => {
   };
 
   const handleGenerateProfile = async () => {
-    // Validation
     if (!formData.name.trim()) {
       toast.error("Please enter your name");
       return;
@@ -74,7 +70,6 @@ const HomePage = () => {
 
     setGenerating(true);
     try {
-      // Upload photo first if selected
       let uploadedPhotoUrl = null;
       if (photoFile) {
         setUploading(true);
@@ -88,8 +83,6 @@ const HomePage = () => {
             },
           });
           uploadedPhotoUrl = `${BACKEND_URL}${uploadResponse.data.url}`;
-          console.log("Uploaded photo URL:", uploadedPhotoUrl);
-          toast.success("Photo uploaded!");
         } catch (error) {
           console.error("Upload error:", error);
           toast.error("Failed to upload photo");
@@ -104,15 +97,7 @@ const HomePage = () => {
       };
 
       const response = await axios.post(`${API}/profiles`, profileData);
-      console.log("Profile created:", response.data);
-      
-      // Use photoPreview for immediate display if available
-      const profileWithPreview = {
-        ...response.data,
-        photo_url: uploadedPhotoUrl || response.data.photo_url
-      };
-      
-      setProfile(profileWithPreview);
+      setProfile(response.data);
       toast.success("Profile generated successfully!");
     } catch (error) {
       console.error("Generate error:", error);
@@ -128,7 +113,6 @@ const HomePage = () => {
     try {
       toast.loading("Preparing animation...");
       
-      // Dynamically load GIF.js if not already loaded
       if (!window.GIF) {
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js';
@@ -141,74 +125,30 @@ const HomePage = () => {
       }
       
       const card = cardRef.current;
-      const scanLine = card.querySelector('.scan-line');
-      
-      // Store original styles
-      const originalScanLineStyle = scanLine ? scanLine.style.cssText : '';
-      const originalCardStyle = card.querySelector('.profile-card')?.style.cssText || '';
-      
-      // Disable CSS animations temporarily
-      card.style.animation = 'none';
-      if (scanLine) {
-        scanLine.style.animation = 'none';
-      }
       
       toast.dismiss();
-      toast.loading("Capturing frames...");
+      toast.loading("Capturing animated frames...");
       
       const frames = [];
       const totalFrames = 50;
       
-      // Capture frames with manual scan line positioning
       for (let i = 0; i < totalFrames; i++) {
-        // Calculate scan line position
-        if (scanLine) {
-          const progress = (i / totalFrames) * 100;
-          scanLine.style.top = `${progress}%`;
-          scanLine.style.opacity = '1';
-        }
-        
-        // Add glow pulse effect
-        const cardElement = card.querySelector('.profile-card');
-        if (cardElement) {
-          const pulse = 0.4 + (Math.sin((i / totalFrames) * Math.PI * 2) * 0.2);
-          cardElement.style.boxShadow = `
-            0 0 ${20 + pulse * 10}px rgba(255, 0, 255, ${pulse}),
-            0 0 ${40 + pulse * 20}px rgba(138, 43, 226, ${pulse * 0.5}),
-            inset 0 0 ${20 + pulse * 10}px rgba(255, 0, 255, ${pulse * 0.25})
-          `;
-        }
-        
-        // Small delay to ensure DOM updates
         await new Promise(resolve => setTimeout(resolve, 50));
         
-        // Capture frame
         const canvas = await html2canvas(card, {
-          backgroundColor: '#0a0a0f',
+          backgroundColor: '#000000',
           scale: 2,
           useCORS: true,
           allowTaint: true,
           logging: false,
-          width: 400,
-          height: 600,
         });
         
         frames.push(canvas);
       }
       
-      // Restore original styles
-      if (scanLine) {
-        scanLine.style.cssText = originalScanLineStyle;
-      }
-      const cardElement = card.querySelector('.profile-card');
-      if (cardElement) {
-        cardElement.style.cssText = originalCardStyle;
-      }
-      
       toast.dismiss();
-      toast.loading("Creating GIF animation...");
+      toast.loading("Creating animated GIF...");
       
-      // Create GIF
       const gif = new window.GIF({
         workers: 2,
         quality: 10,
@@ -217,12 +157,10 @@ const HomePage = () => {
         workerScript: '/gif.worker.js'
       });
       
-      // Add frames
       frames.forEach(canvas => {
         gif.addFrame(canvas, { delay: 80 });
       });
       
-      // Handle completion
       gif.on('finished', (blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -261,13 +199,11 @@ const HomePage = () => {
 
   return (
     <div className="cyber-bg min-h-screen relative overflow-hidden">
-      {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
 
-      {/* Header */}
       <header className="relative z-10 py-8 px-6 border-b border-purple-500/20">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
@@ -294,10 +230,8 @@ const HomePage = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="relative z-10 max-w-7xl mx-auto px-6 py-12">
         <div className="grid lg:grid-cols-2 gap-12 items-start">
-          {/* Form Section */}
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl sm:text-3xl font-bold mb-3" style={{ background: 'linear-gradient(90deg, #ff00ff, #ff1493)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
@@ -309,18 +243,11 @@ const HomePage = () => {
             </div>
 
             <Card className="bg-gray-900/50 backdrop-blur-md border-2 border-purple-500/30 p-6 space-y-6">
-              {/* Photo Upload */}
               <div className="space-y-2">
-                <Label htmlFor="photo" className="text-purple-400">
-                  Profile Photo
-                </Label>
+                <Label htmlFor="photo" className="text-purple-400">Profile Photo</Label>
                 <div className="flex items-center gap-4">
                   {photoPreview && (
-                    <img
-                      src={photoPreview}
-                      alt="Preview"
-                      className="w-20 h-20 rounded-full object-cover border-2 border-purple-500"
-                    />
+                    <img src={photoPreview} alt="Preview" className="w-20 h-20 rounded-full object-cover border-2 border-purple-500" />
                   )}
                   <label className="cursor-pointer">
                     <input
@@ -334,19 +261,14 @@ const HomePage = () => {
                     />
                     <div className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 border border-purple-500/50 rounded-lg hover:bg-purple-500/20 transition-colors">
                       <Upload className="w-4 h-4 text-purple-400" />
-                      <span className="text-purple-400 text-sm">
-                        {photoPreview ? "Change Photo" : "Upload Photo"}
-                      </span>
+                      <span className="text-purple-400 text-sm">{photoPreview ? "Change Photo" : "Upload Photo"}</span>
                     </div>
                   </label>
                 </div>
               </div>
 
-              {/* Name Input */}
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-purple-400">
-                  Name *
-                </Label>
+                <Label htmlFor="name" className="text-purple-400">Name *</Label>
                 <Input
                   id="name"
                   name="name"
@@ -358,27 +280,21 @@ const HomePage = () => {
                 />
               </div>
 
-              {/* Role Input */}
               <div className="space-y-2">
-                <Label htmlFor="role" className="text-purple-400">
-                  Role *
-                </Label>
+                <Label htmlFor="role" className="text-purple-400">Role *</Label>
                 <Input
                   id="role"
                   name="role"
                   value={formData.role}
                   onChange={handleInputChange}
-                  placeholder="e.g., Crypto Specialist"
+                  placeholder="e.g., Elite Member"
                   className="bg-gray-800/50 border-purple-500/30 text-white placeholder:text-gray-500 focus:border-purple-500"
                   data-testid="role-input"
                 />
               </div>
 
-              {/* Bio Input */}
               <div className="space-y-2">
-                <Label htmlFor="bio" className="text-purple-400">
-                  Bio
-                </Label>
+                <Label htmlFor="bio" className="text-purple-400">Bio</Label>
                 <Textarea
                   id="bio"
                   name="bio"
@@ -391,7 +307,6 @@ const HomePage = () => {
                 />
               </div>
 
-              {/* Buttons */}
               <div className="flex gap-3">
                 <Button
                   data-testid="generate-profile-btn"
@@ -416,9 +331,8 @@ const HomePage = () => {
             </Card>
           </div>
 
-          {/* Preview Section */}
           <div className="space-y-6 flex flex-col items-center">
-            <div className="w-full max-w-[400px]">
+            <div className="w-full max-w-[500px]">
               <h2 className="text-2xl sm:text-3xl font-bold mb-3 text-center" style={{ background: 'linear-gradient(90deg, #ff00ff, #ff1493)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 Preview
               </h2>
@@ -431,72 +345,77 @@ const HomePage = () => {
               <div className="space-y-6">
                 <div className="profile-card-container flex justify-center">
                   <div ref={cardRef} className="profile-card" data-testid="profile-card">
-                    <div className="scan-line"></div>
-                    <div className="relative z-10 space-y-6">
+                    <div className="lightning-pattern"></div>
+                    
+                    {/* Umbrella Rain Effect */}
+                    <div className="umbrella-rain">
+                      <div className="umbrella">☂️</div>
+                      <div className="umbrella">☂️</div>
+                      <div className="umbrella">☂️</div>
+                      <div className="umbrella">☂️</div>
+                      <div className="umbrella">☂️</div>
+                      <div className="umbrella">☂️</div>
+                      <div className="umbrella">☂️</div>
+                      <div className="umbrella">☂️</div>
+                    </div>
+                    
+                    <div className="relative z-10 flex flex-col items-center justify-center space-y-6">
                       {/* Profile Photo */}
-                      <div className="flex justify-center">
-                        <div className="relative">
-                          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-500 shadow-lg shadow-purple-500/50">
-                            <img
-                              src={
-                                photoPreview || 
-                                profile.photo_url ||
-                                "https://images.unsplash.com/photo-1706606999710-72658165a73d?w=400"
-                              }
-                              alt={profile.name}
-                              className="w-full h-full object-cover"
-                              data-testid="profile-photo"
-                              crossOrigin="anonymous"
-                            />
-                          </div>
-                          <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">✓</span>
-                          </div>
-                        </div>
+                      <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white photo-glow">
+                        <img
+                          src={
+                            photoPreview || 
+                            profile.photo_url ||
+                            "https://images.unsplash.com/photo-1706606999710-72658165a73d?w=400"
+                          }
+                          alt={profile.name}
+                          className="w-full h-full object-cover"
+                          data-testid="profile-photo"
+                          crossOrigin="anonymous"
+                        />
                       </div>
 
-                      {/* Profile Info */}
-                      <div className="text-center space-y-3">
-                        <div>
-                          <h3 className="text-2xl font-bold text-white mb-1" data-testid="profile-name">
-                            {profile.name}
-                          </h3>
-                          <p className="text-purple-400 font-medium" data-testid="profile-role">
-                            {profile.role}
-                          </p>
-                        </div>
+                      {/* Username */}
+                      <div className="bg-black/60 px-6 py-2 rounded-full">
+                        <p className="text-white text-xl font-bold" data-testid="profile-name">
+                          @{profile.name.toLowerCase().replace(/\s+/g, '')}
+                        </p>
+                      </div>
 
-                        {/* Encrypted ID */}
-                        <div className="py-3 px-4 bg-black/40 rounded-lg border border-purple-500/30">
-                          <p className="text-xs text-gray-400 mb-1">ENCRYPTED ID</p>
-                          <p className="encrypted-id text-lg" data-testid="profile-encrypted-id">
-                            #{profile.encrypted_id}
-                          </p>
-                        </div>
-
-                        {/* Bio */}
+                      {/* Status Level */}
+                      <div className="text-center space-y-2">
+                        <p className="text-pink-400 text-sm font-bold tracking-wider uppercase">
+                          STRENGTH LEVEL:
+                        </p>
+                        <p className="text-white text-3xl font-bold" data-testid="profile-role" style={{ textShadow: '0 0 10px rgba(255, 0, 255, 0.8)' }}>
+                          {profile.role}
+                        </p>
                         {profile.bio && (
-                          <div className="text-left py-3 px-4 bg-black/20 rounded-lg border border-purple-500/10">
-                            <p className="text-xs text-gray-400 mb-2">BIO</p>
-                            <p className="text-sm text-gray-300 leading-relaxed" data-testid="profile-bio">
-                              {profile.bio}
-                            </p>
-                          </div>
+                          <p className="text-pink-300 text-xl font-bold" data-testid="profile-bio">
+                            {profile.bio}
+                          </p>
                         )}
+                      </div>
 
-                        {/* Timestamp */}
-                        <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-                          <span>GENERATED</span>
-                          <span className="text-purple-400">
-                            {new Date(profile.created_at).toLocaleDateString()}
-                          </span>
-                        </div>
+                      {/* Logo and ID */}
+                      <div className="absolute bottom-8 right-8 text-right space-y-2">
+                        <img 
+                          src="https://customer-assets.emergentagent.com/job_member-id-display/artifacts/ukpdflpi_aYqMoBKH_400x400.jpg" 
+                          alt="Arcians" 
+                          className="w-16 h-16 ml-auto object-contain"
+                        />
+                        <p className="text-purple-300 text-xs">The Arcians Identity</p>
+                      </div>
+
+                      <div className="absolute bottom-8 left-8">
+                        <p className="encrypted-id" data-testid="profile-encrypted-id">
+                          #{profile.encrypted_id}
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Download Button */}
                 <div className="flex justify-center">
                   <Button
                     data-testid="download-card-btn"
@@ -504,30 +423,26 @@ const HomePage = () => {
                     className="cyber-button"
                   >
                     <Download className="w-4 h-4 mr-2" />
-                    Download Card
+                    Download Animated GIF
                   </Button>
                 </div>
               </div>
             ) : (
               <div className="profile-card-container flex justify-center">
                 <div className="profile-card opacity-50">
-                  <div className="relative z-10 space-y-6">
-                    <div className="flex justify-center">
-                      <div className="w-32 h-32 rounded-full bg-gray-800 border-4 border-purple-500/30 flex items-center justify-center">
-                        <ImageIcon className="w-12 h-12 text-gray-600" />
-                      </div>
+                  <div className="lightning-pattern"></div>
+                  <div className="relative z-10 flex flex-col items-center justify-center space-y-6">
+                    <div className="w-40 h-40 rounded-full bg-gray-800 border-4 border-white flex items-center justify-center">
+                      <ImageIcon className="w-16 h-16 text-gray-600" />
                     </div>
-                    <div className="text-center space-y-3">
-                      <div>
-                        <div className="h-8 bg-gray-800 rounded w-3/4 mx-auto mb-2"></div>
-                        <div className="h-5 bg-gray-800 rounded w-1/2 mx-auto"></div>
-                      </div>
-                      <div className="py-3 px-4 bg-black/40 rounded-lg border border-purple-500/30">
-                        <p className="text-xs text-gray-600 mb-1">ENCRYPTED ID</p>
-                        <p className="text-gray-700 text-lg font-mono">#XXXXXXXXXXXX</p>
-                      </div>
-                      <p className="text-gray-600 text-sm">Generate a profile to preview</p>
+                    <div className="bg-black/60 px-6 py-2 rounded-full">
+                      <p className="text-gray-600 text-xl font-bold">@username</p>
                     </div>
+                    <div className="text-center space-y-2">
+                      <p className="text-gray-600 text-sm font-bold tracking-wider">STRENGTH LEVEL:</p>
+                      <p className="text-gray-700 text-3xl font-bold">UNKNOWN</p>
+                    </div>
+                    <p className="text-gray-600 text-sm">Generate a profile to preview</p>
                   </div>
                 </div>
               </div>
