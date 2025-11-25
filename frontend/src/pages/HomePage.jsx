@@ -330,12 +330,14 @@ const HomePage = () => {
                           <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-purple-500 shadow-lg shadow-purple-500/50">
                             <img
                               src={
+                                photoPreview || 
                                 profile.photo_url ||
                                 "https://images.unsplash.com/photo-1706606999710-72658165a73d?w=400"
                               }
                               alt={profile.name}
                               className="w-full h-full object-cover"
                               data-testid="profile-photo"
+                              crossOrigin="anonymous"
                             />
                           </div>
                           <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
