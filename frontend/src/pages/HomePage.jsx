@@ -136,11 +136,18 @@ const HomePage = () => {
       {/* Header */}
       <header className="relative z-10 py-8 px-6 border-b border-cyan-500/20">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold glow-text" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-              CIPHER PROFILE
-            </h1>
-            <p className="text-cyan-400 text-sm mt-1">Encrypted Identity Generator</p>
+          <div className="flex items-center gap-4">
+            <img 
+              src="https://customer-assets.emergentagent.com/job_member-id-display/artifacts/ukpdflpi_aYqMoBKH_400x400.jpg" 
+              alt="Arcians Logo" 
+              className="w-12 h-12 object-contain"
+            />
+            <div>
+              <h1 className="text-3xl font-bold glow-text" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                ARCIANS PROFILE
+              </h1>
+              <p className="text-cyan-400 text-sm mt-1">Encrypted Identity Generator</p>
+            </div>
           </div>
           <Button
             data-testid="view-gallery-btn"
