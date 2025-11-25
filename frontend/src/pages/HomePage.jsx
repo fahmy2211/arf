@@ -89,6 +89,7 @@ const HomePage = () => {
           });
           uploadedPhotoUrl = `${BACKEND_URL}${uploadResponse.data.url}`;
           console.log("Uploaded photo URL:", uploadedPhotoUrl);
+          toast.success("Photo uploaded!");
         } catch (error) {
           console.error("Upload error:", error);
           toast.error("Failed to upload photo");
@@ -104,7 +105,14 @@ const HomePage = () => {
 
       const response = await axios.post(`${API}/profiles`, profileData);
       console.log("Profile created:", response.data);
-      setProfile(response.data);
+      
+      // Use photoPreview for immediate display if available
+      const profileWithPreview = {
+        ...response.data,
+        photo_url: uploadedPhotoUrl || response.data.photo_url
+      };
+      
+      setProfile(profileWithPreview);
       toast.success("Profile generated successfully!");
     } catch (error) {
       console.error("Generate error:", error);
