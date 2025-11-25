@@ -98,57 +98,58 @@ const GalleryPage = () => {
                 style={{ animationDelay: `${index * 0.1}s` }}
                 data-testid={`gallery-card-${index}`}
               >
-                <div className="profile-card mx-auto" style={{ width: '350px', height: '350px', padding: '20px' }}>
-                  <div className="lightning-pattern"></div>
-                  <div className="relative z-10 flex flex-col items-center justify-center space-y-3">
+                <div className="profile-card mx-auto" style={{ width: '320px', padding: '24px' }}>
+                  <div className="scan-line"></div>
+                  <div className="relative z-10 space-y-4">
                     {/* Profile Photo */}
-                    <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white photo-glow">
-                      <img
-                        src={
-                          profile.photo_url ||
-                          "https://images.unsplash.com/photo-1706606999710-72658165a73d?w=400"
-                        }
-                        alt={profile.name}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="flex justify-center">
+                      <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-purple-500 shadow-lg shadow-purple-500/50">
+                        <img
+                          src={
+                            profile.photo_url ||
+                            "https://images.unsplash.com/photo-1706606999710-72658165a73d?w=400"
+                          }
+                          alt={profile.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     </div>
 
-                    {/* Username */}
-                    <div className="bg-black/60 px-4 py-1 rounded-full">
-                      <p className="text-white text-sm font-bold">
-                        @{profile.name.toLowerCase().replace(/\s+/g, '')}
-                      </p>
-                    </div>
-
-                    {/* Role */}
-                    <div className="text-center">
-                      <p className="text-pink-400 text-xs font-bold tracking-wider uppercase">
-                        STRENGTH LEVEL:
-                      </p>
-                      <p className="text-white text-lg font-bold" style={{ textShadow: '0 0 10px rgba(255, 0, 255, 0.8)' }}>
-                        {profile.role}
-                      </p>
-                      {profile.bio && (
-                        <p className="text-pink-300 text-sm font-bold">
-                          {profile.bio}
+                    {/* Profile Info */}
+                    <div className="text-center space-y-3">
+                      <div>
+                        <h3 className="text-lg font-bold text-white mb-1">
+                          {profile.name}
+                        </h3>
+                        <p className="text-purple-400 text-sm font-medium">
+                          {profile.role}
                         </p>
+                      </div>
+
+                      {/* Encrypted ID */}
+                      <div className="py-2 px-3 bg-black/40 rounded-lg border border-purple-500/30">
+                        <p className="text-xs text-gray-400 mb-1">ID</p>
+                        <p className="encrypted-id text-sm">
+                          #{profile.encrypted_id}
+                        </p>
+                      </div>
+
+                      {/* Bio */}
+                      {profile.bio && (
+                        <div className="text-left py-2 px-3 bg-black/20 rounded-lg border border-purple-500/10">
+                          <p className="text-xs text-gray-300 leading-relaxed line-clamp-2">
+                            {profile.bio}
+                          </p>
+                        </div>
                       )}
-                    </div>
 
-                    {/* Logo */}
-                    <div className="absolute bottom-4 right-4">
-                      <img 
-                        src="https://customer-assets.emergentagent.com/job_member-id-display/artifacts/ukpdflpi_aYqMoBKH_400x400.jpg" 
-                        alt="Arcians" 
-                        className="w-10 h-10 object-contain opacity-80"
-                      />
-                    </div>
-
-                    {/* Encrypted ID */}
-                    <div className="absolute bottom-4 left-4">
-                      <p className="encrypted-id text-xs">
-                        #{profile.encrypted_id}
-                      </p>
+                      {/* Timestamp */}
+                      <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                        <span>GENERATED</span>
+                        <span className="text-purple-400">
+                          {new Date(profile.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
