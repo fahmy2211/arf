@@ -123,12 +123,12 @@ const HomePage = () => {
     }
 
     try {
-      toast.loading("Capturing card...");
+      toast.loading("Taking screenshot...");
       
       // Wait for background image and animations to settle
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 200));
       
-      // Capture ONLY the card-export element (no background page)
+      // Screenshot/capture the card element
       const canvas = await html2canvas(cardElement, {
         backgroundColor: null,
         scale: 3,
@@ -145,6 +145,7 @@ const HomePage = () => {
         scrollY: 0,
       });
       
+      // Convert to blob and download immediately
       canvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -156,14 +157,18 @@ const HomePage = () => {
         URL.revokeObjectURL(url);
         
         toast.dismiss();
-        toast.success("Card downloaded successfully! 🎉");
-        setShowModal(false);
+        toast.success("Card saved successfully! 🎉");
+        
+        // Close modal after successful download
+        setTimeout(() => {
+          setShowModal(false);
+        }, 500);
       }, 'image/png', 1.0);
       
     } catch (error) {
       console.error("Download error:", error);
       toast.dismiss();
-      toast.error("Failed to download card");
+      toast.error("Failed to save card");
     }
   };
 
