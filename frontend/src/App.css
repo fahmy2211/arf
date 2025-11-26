@@ -140,6 +140,8 @@ body {
   bottom: 0;
   background: rgba(0, 0, 0, 0.15);
   pointer-events: none;
+  z-index: 1;
+  border-radius: 16px;
 }
 
 .profile-card:hover {
