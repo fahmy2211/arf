@@ -338,7 +338,7 @@ const HomePage = () => {
                   <div ref={cardRef} id="card-export" className="profile-card" data-testid="profile-card">
                     {/* Background Image */}
                     <img 
-                      src={`${BACKEND_URL}/api/uploads/arcium1_bg.png`}
+                      src={`${BACKEND_URL}/uploads/arcium1_bg.png`}
                       alt=""
                       className="profile-card-bg"
                       crossOrigin="anonymous"
