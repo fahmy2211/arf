@@ -34,11 +34,14 @@ const HomePage = () => {
   useEffect(() => {
     const loadBackgroundImage = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}/uploads/arcium1_bg.png`);
+        // Add timestamp to prevent caching
+        const timestamp = new Date().getTime();
+        const response = await fetch(`${BACKEND_URL}/uploads/arcium1_bg.png?t=${timestamp}`);
         const blob = await response.blob();
         const reader = new FileReader();
         reader.onloadend = () => {
           setBgImageData(reader.result);
+          console.log("Background image loaded successfully");
         };
         reader.readAsDataURL(blob);
       } catch (error) {
