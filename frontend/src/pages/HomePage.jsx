@@ -31,7 +31,7 @@ const HomePage = () => {
   const modalCardRef = useRef(null);
   
   // Load background image as base64 on component mount
-  useState(() => {
+  useEffect(() => {
     const loadBackgroundImage = async () => {
       try {
         const response = await fetch(`${BACKEND_URL}/uploads/arcium1_bg.png`);
