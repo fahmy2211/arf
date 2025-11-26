@@ -40,11 +40,11 @@ class CustomStaticFiles(StaticFiles):
 # Mount uploads at root level (for direct access if routed correctly)
 app.mount("/uploads", CustomStaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
-# Also mount under /api prefix for Kubernetes ingress compatibility
-api_router.mount("/uploads", CustomStaticFiles(directory=str(UPLOAD_DIR)), name="api_uploads")
-
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
+
+# Also mount under /api prefix for Kubernetes ingress compatibility
+api_router.mount("/uploads", CustomStaticFiles(directory=str(UPLOAD_DIR)), name="api_uploads")
 
 # Define Models
 class Profile(BaseModel):
