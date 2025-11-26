@@ -26,8 +26,27 @@ const HomePage = () => {
   const [profile, setProfile] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [bgImageData, setBgImageData] = useState(null);
   const cardRef = useRef(null);
   const modalCardRef = useRef(null);
+  
+  // Load background image as base64 on component mount
+  useState(() => {
+    const loadBackgroundImage = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/uploads/arcium1_bg.png`);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setBgImageData(reader.result);
+        };
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error("Failed to load background image:", error);
+      }
+    };
+    loadBackgroundImage();
+  }, []);
 
   const handleInputChange = (e) => {
     setFormData({
