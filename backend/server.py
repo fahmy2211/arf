@@ -84,11 +84,20 @@ async def upload_file(file: UploadFile = File(...)):
             content = await file.read()
             await f.write(content)
         
-        # Return URL
-        file_url = f"/uploads/{filename}"
+        # Return URL - use /api/uploads/ for consistency
+        file_url = f"/api/uploads/{filename}"
         return {"url": file_url}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/uploads/{filename}")
+async def get_uploaded_file(filename: str):
+    """Serve uploaded files"""
+    from fastapi.responses import FileResponse
+    file_path = UPLOAD_DIR / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(file_path)
 
 @api_router.post("/profiles", response_model=Profile)
 async def create_profile(profile: ProfileCreate):
