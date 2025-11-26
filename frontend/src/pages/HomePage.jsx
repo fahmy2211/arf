@@ -359,12 +359,12 @@ const HomePage = () => {
                     id="card-export" 
                     className="profile-card" 
                     data-testid="profile-card"
-                    style={{
-                      backgroundImage: `url(${BACKEND_URL}/uploads/arcium1_bg.png)`,
+                    style={bgImageData ? {
+                      backgroundImage: `url(${bgImageData})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                       backgroundRepeat: 'no-repeat',
-                    }}
+                    } : {}}
                   >
                     {/* Umbrella Rain Effect */}
                     <div className="umbrella-rain" style={{ zIndex: 5 }}>
