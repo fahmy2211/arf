@@ -489,7 +489,7 @@ const HomePage = () => {
             >
               {/* Background Image */}
               <img 
-                src={`${BACKEND_URL}/api/uploads/arcium1_bg.png`}
+                src={`${BACKEND_URL}/uploads/arcium1_bg.png`}
                 alt=""
                 className="profile-card-bg"
                 crossOrigin="anonymous"
