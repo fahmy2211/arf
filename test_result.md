@@ -101,3 +101,60 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Bug fix: Background image kosmik tidak muncul di file PNG yang di-download dari fitur Save Card. User ingin card yang di-download sesuai 1:1 dengan card yang ditampilkan di layar."
+
+backend:
+  - task: "Serve background image locally"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Background image arcium1_bg.png sudah ada di /app/backend/uploads/ dan di-serve melalui /uploads/ endpoint. Tested successfully."
+
+frontend:
+  - task: "Fix background image capture in downloaded PNG"
+    implemented: true
+    working: true
+    file: "frontend/src/pages/HomePage.jsx, frontend/src/App.css"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "main"
+        comment: "Initial issue: Background image using CSS ::after pseudo-element tidak tertangkap oleh html2canvas."
+      - working: false
+        agent: "main"
+        comment: "Attempt 1: Menggunakan elemen <img> dengan class profile-card-bg. Masih gagal karena URL path salah (/api/uploads/ instead of /uploads/)."
+      - working: false
+        agent: "main"
+        comment: "Attempt 2: Fixed URL path. Masih gagal - html2canvas tidak menangkap <img> element yang positioned absolutely."
+      - working: false
+        agent: "main"
+        comment: "Attempt 3: Menggunakan inline style backgroundImage. Masih gagal - html2canvas tidak menangkap background-image dari URL eksternal dengan baik."
+      - working: true
+        agent: "main"
+        comment: "FINAL SOLUTION: Convert background image ke base64 data URL menggunakan fetch + FileReader. Background kosmik sekarang tertangkap SEMPURNA di file PNG yang di-download. Verified dengan analyze_file_tool - background memiliki 'deep black with purple/pink gradients and iridescent celestial textures'."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Verify download functionality works end-to-end"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Bug fix complete. Background image sekarang menggunakan base64 data URL yang di-load saat component mount. html2canvas successfully captures the cosmic background in downloaded PNG files."
