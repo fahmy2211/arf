@@ -335,15 +335,18 @@ const HomePage = () => {
             {profile ? (
               <div className="space-y-6">
                 <div className="profile-card-container flex justify-center">
-                  <div ref={cardRef} id="card-export" className="profile-card" data-testid="profile-card">
-                    {/* Background Image */}
-                    <img 
-                      src={`${BACKEND_URL}/uploads/arcium1_bg.png`}
-                      alt=""
-                      className="profile-card-bg"
-                      crossOrigin="anonymous"
-                    />
-                    
+                  <div 
+                    ref={cardRef} 
+                    id="card-export" 
+                    className="profile-card" 
+                    data-testid="profile-card"
+                    style={{
+                      backgroundImage: `url(${BACKEND_URL}/uploads/arcium1_bg.png)`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                    }}
+                  >
                     {/* Umbrella Rain Effect */}
                     <div className="umbrella-rain" style={{ zIndex: 5 }}>
                       <div className="umbrella">☂️</div>
