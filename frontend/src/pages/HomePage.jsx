@@ -36,7 +36,7 @@ const HomePage = () => {
       try {
         // Add timestamp to prevent caching
         const timestamp = new Date().getTime();
-        const response = await fetch(`${BACKEND_URL}/uploads/arcium1_bg.png?t=${timestamp}`);
+        const response = await fetch(`${BACKEND_URL}/api/uploads/arcium1_bg.png?t=${timestamp}`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
