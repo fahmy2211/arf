@@ -485,15 +485,13 @@ const HomePage = () => {
                 transform: 'translateZ(0)',
                 WebkitFontSmoothing: 'antialiased',
                 MozOsxFontSmoothing: 'grayscale',
+                // Add background image inline for html2canvas compatibility
+                backgroundImage: `url(${BACKEND_URL}/uploads/arcium1_bg.png)`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
               }}
             >
-              {/* Background Image */}
-              <img 
-                src={`${BACKEND_URL}/uploads/arcium1_bg.png`}
-                alt=""
-                className="profile-card-bg"
-                crossOrigin="anonymous"
-              />
               
               {/* Umbrella Rain Effect */}
               <div className="umbrella-rain" style={{ zIndex: 5 }}>
