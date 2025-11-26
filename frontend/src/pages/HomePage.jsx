@@ -507,11 +507,13 @@ const HomePage = () => {
                 transform: 'translateZ(0)',
                 WebkitFontSmoothing: 'antialiased',
                 MozOsxFontSmoothing: 'grayscale',
-                // Add background image inline for html2canvas compatibility
-                backgroundImage: `url(${BACKEND_URL}/uploads/arcium1_bg.png)`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
+                // Add background image inline as base64 for html2canvas compatibility
+                ...(bgImageData && {
+                  backgroundImage: `url(${bgImageData})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                }),
               }}
             >
               
