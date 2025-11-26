@@ -37,11 +37,23 @@ const HomePage = () => {
         // Add timestamp to prevent caching
         const timestamp = new Date().getTime();
         const response = await fetch(`${BACKEND_URL}/uploads/arcium1_bg.png?t=${timestamp}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const blob = await response.blob();
+        console.log(`Background blob size: ${blob.size} bytes, type: ${blob.type}`);
+        
         const reader = new FileReader();
         reader.onloadend = () => {
-          setBgImageData(reader.result);
-          console.log("Background image loaded successfully");
+          const base64String = reader.result;
+          console.log(`Background base64 length: ${base64String.length} chars`);
+          setBgImageData(base64String);
+          console.log("Background image loaded and converted to base64 successfully");
+        };
+        reader.onerror = (error) => {
+          console.error("FileReader error:", error);
         };
         reader.readAsDataURL(blob);
       } catch (error) {
